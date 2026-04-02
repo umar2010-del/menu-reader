@@ -9,10 +9,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing imageData or mediaType' });
     }
  
-    const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
  
-    const prompt = `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, just raw JSON.
+        const prompt = `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, no code fences, just raw JSON starting with [ and ending with ].
  
 Each element represents a menu section:
 {
@@ -30,12 +31,12 @@ Each element represents a menu section:
 Rules:
 - Group items under their correct section header (Appetizers, Mains, Desserts, Drinks, etc.)
 - If no section headers exist, use "Menu" as the section name
-- allergens is an array of strings for any allergens mentioned (nuts, dairy, gluten, shellfish, eggs, soy, fish, sesame, etc.)
+- allergens is an array of strings for any allergens mentioned
 - If no price is visible, use ""
 - If no description is visible, use ""
-- If no allergens, use []`;
+- If no allergens, use []
+- Return ONLY the JSON array, nothing else`;
  
-    try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -53,7 +54,7 @@ Rules:
                 }],
                 generationConfig: {
                     temperature: 0.1,
-                    maxOutputTokens: 2000
+                    responseMimeType: "application/json"
                 }
             })
         });
@@ -64,16 +65,31 @@ Rules:
         }
  
         const data = await response.json();
+ 
+        // pull text out of response
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
  
-        // strip markdown fences then grab just the JSON array
-        let cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+        // aggressive cleanup — strip any markdown fences, leading/trailing whitespace
+        let cleaned = raw.trim();
+        cleaned = cleaned.replace(/^```json\s*/i, '');
+        cleaned = cleaned.replace(/^```\s*/i, '');
+        cleaned = cleaned.replace(/```\s*$/i, '');
+        cleaned = cleaned.trim();
+ 
+        // find the first [ and last ] to extract just the array
         const start = cleaned.indexOf('[');
         const end = cleaned.lastIndexOf(']');
-        if (start === -1 || end === -1) {
-            return res.status(500).json({ error: 'Could not find JSON in Gemini response' });
+        if (start !== -1 && end !== -1 && end > start) {
+            cleaned = cleaned.substring(start, end + 1);
         }
-        cleaned = cleaned.slice(start, end + 1);
+ 
+        // validate it's actually parseable before sending back
+        try {
+            JSON.parse(cleaned);
+        } catch (parseErr) {
+            console.error('JSON parse failed. Raw response was:', raw);
+            return res.status(500).json({ error: 'Could not parse menu data from Gemini response. Raw: ' + raw.substring(0, 200) });
+        }
  
         res.status(200).json({ result: cleaned });
  
