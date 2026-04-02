@@ -9,27 +9,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing imageData or mediaType' });
     }
 
-    try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': process.env.ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 2000,
-                messages: [{
-                    role: 'user',
-                    content: [
-                        {
-                            type: 'image',
-                            source: { type: 'base64', media_type: mediaType, data: imageData }
-                        },
-                        {
-                            type: 'text',
-                            text: `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, just raw JSON.
+    const apiKey = process.env.GEMINI_API_KEY;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const prompt = `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, just raw JSON.
 
 Each element represents a menu section:
 {
@@ -50,20 +33,38 @@ Rules:
 - allergens is an array of strings for any allergens mentioned (nuts, dairy, gluten, shellfish, eggs, soy, fish, sesame, etc.)
 - If no price is visible, use ""
 - If no description is visible, use ""
-- If no allergens, use []`
-                        }
+- If no allergens, use []`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        {
+                            inline_data: {
+                                mime_type: mediaType,
+                                data: imageData
+                            }
+                        },
+                        { text: prompt }
                     ]
-                }]
+                }],
+                generationConfig: {
+                    temperature: 0.1,
+                    maxOutputTokens: 2000
+                }
             })
         });
 
         if (!response.ok) {
             const err = await response.json();
-            return res.status(response.status).json({ error: err.error?.message || 'Anthropic API error' });
+            return res.status(response.status).json({ error: err.error?.message || 'Gemini API error' });
         }
 
         const data = await response.json();
-        const raw = data.content.map(b => b.text || '').join('').trim();
+        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
 
         res.status(200).json({ result: cleaned });
