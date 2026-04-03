@@ -51,7 +51,7 @@ Rules:
                 'X-Title': 'Menu Reader'
             },
             body: JSON.stringify({
-              model: 'openrouter/auto',
+            model: 'qwen/qwen2.5-vl-32b-instruct:free',
                 messages: [
                     {
                         role: 'user',
