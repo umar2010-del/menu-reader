@@ -89,9 +89,8 @@ Rules:
  
         // clean up any markdown fences
         let cleaned = raw.trim();
-        cleaned = cleaned.replace(/^```json\s*/i, '');
-        cleaned = cleaned.replace(/^```\s*/i, '');
-        cleaned = cleaned.replace(/```\s*$/i, '');
+        cleaned = cleaned.replace(/```json/gi, '');
+        cleaned = cleaned.replace(/```/g, '');
         cleaned = cleaned.trim();
  
         // extract just the array
