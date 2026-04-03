@@ -51,7 +51,7 @@ Rules:
                 'X-Title': 'Menu Reader'
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.0-flash-exp:free',
+               model: 'google/gemini-2.0-flash-lite:free',
                 messages: [
                     {
                         role: 'user',
