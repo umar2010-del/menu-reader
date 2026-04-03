@@ -51,7 +51,7 @@ Rules:
                 'X-Title': 'Menu Reader'
             },
             body: JSON.stringify({
-               model: 'meta-llama/llama-3.2-11b-vision-instruct:free',
+              model: 'openrouter/auto',
                 messages: [
                     {
                         role: 'user',
