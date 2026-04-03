@@ -3,10 +3,10 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
  
-    const { imageData, mediaType } = req.body;
+    const { images } = req.body;
  
-    if (!imageData || !mediaType) {
-        return res.status(400).json({ error: 'Missing imageData or mediaType' });
+    if (!images || !Array.isArray(images) || images.length === 0) {
+        return res.status(400).json({ error: 'Missing images array' });
     }
  
     try {
@@ -42,6 +42,20 @@ Rules:
 - If no allergens, use []
 - Return ONLY the JSON array, nothing else, no extra text`;
  
+        // build content array with all images + prompt at the end
+        const content = [];
+ 
+        for (const img of images) {
+            content.push({
+                type: 'image_url',
+                image_url: {
+                    url: `data:${img.mediaType};base64,${img.imageData}`
+                }
+            });
+        }
+ 
+        content.push({ type: 'text', text: prompt });
+ 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -51,24 +65,8 @@ Rules:
                 'X-Title': 'Menu Reader'
             },
             body: JSON.stringify({
-         model: 'openrouter/auto',
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            {
-                                type: 'image_url',
-                                image_url: {
-                                    url: `data:${mediaType};base64,${imageData}`
-                                }
-                            },
-                            {
-                                type: 'text',
-                                text: prompt
-                            }
-                        ]
-                    }
-                ],
+                model: 'openrouter/auto',
+                messages: [{ role: 'user', content }],
                 temperature: 0.1
             })
         });
@@ -83,7 +81,6 @@ Rules:
         const raw = data.choices?.[0]?.message?.content || '';
  
         if (!raw) {
-            console.error('Empty response. Full response:', JSON.stringify(data));
             return res.status(500).json({ error: 'Empty response from API. Full: ' + JSON.stringify(data).substring(0, 300) });
         }
  
