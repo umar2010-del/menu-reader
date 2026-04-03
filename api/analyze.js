@@ -10,13 +10,11 @@ export default async function handler(req, res) {
     }
  
     try {
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY;
  
         if (!apiKey) {
-            return res.status(500).json({ error: 'GEMINI_API_KEY is not set in environment variables' });
+            return res.status(500).json({ error: 'OPENROUTER_API_KEY is not set in environment variables' });
         }
- 
-       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
  
         const prompt = `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, no code fences, just raw JSON starting with [ and ending with ].
  
@@ -44,44 +42,52 @@ Rules:
 - If no allergens, use []
 - Return ONLY the JSON array, nothing else, no extra text`;
  
-        const response = await fetch(url, {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': 'https://menu-reader.vercel.app',
+                'X-Title': 'Menu Reader'
+            },
             body: JSON.stringify({
-                contents: [{
-                    parts: [
-                        {
-                            inline_data: {
-                                mime_type: mediaType,
-                                data: imageData
+                model: 'google/gemini-2.0-flash-exp:free',
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mediaType};base64,${imageData}`
+                                }
+                            },
+                            {
+                                type: 'text',
+                                text: prompt
                             }
-                        },
-                        { text: prompt }
-                    ]
-                }],
-                generationConfig: {
-                    temperature: 0.1
-                }
+                        ]
+                    }
+                ],
+                temperature: 0.1
             })
         });
  
         if (!response.ok) {
             const err = await response.json();
-            console.error('Gemini API error:', JSON.stringify(err));
-            return res.status(response.status).json({ error: err.error?.message || 'Gemini API error' });
+            console.error('OpenRouter API error:', JSON.stringify(err));
+            return res.status(response.status).json({ error: err.error?.message || 'OpenRouter API error' });
         }
  
         const data = await response.json();
- 
-        // pull text out of response
-        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const raw = data.choices?.[0]?.message?.content || '';
  
         if (!raw) {
-            console.error('Empty response from Gemini. Full response:', JSON.stringify(data));
-            return res.status(500).json({ error: 'Gemini returned an empty response. Full response: ' + JSON.stringify(data).substring(0, 300) });
+            console.error('Empty response. Full response:', JSON.stringify(data));
+            return res.status(500).json({ error: 'Empty response from API. Full: ' + JSON.stringify(data).substring(0, 300) });
         }
  
-        // aggressive cleanup
+        // clean up any markdown fences
         let cleaned = raw.trim();
         cleaned = cleaned.replace(/^```json\s*/i, '');
         cleaned = cleaned.replace(/^```\s*/i, '');
@@ -94,15 +100,13 @@ Rules:
         if (start !== -1 && end !== -1 && end > start) {
             cleaned = cleaned.substring(start, end + 1);
         } else {
-            console.error('No JSON array found in response. Raw was:', raw);
-            return res.status(500).json({ error: 'No JSON array found in Gemini response. Got: ' + raw.substring(0, 200) });
+            return res.status(500).json({ error: 'No JSON array found. Got: ' + raw.substring(0, 200) });
         }
  
         // validate
         try {
             JSON.parse(cleaned);
         } catch (parseErr) {
-            console.error('JSON parse failed. Cleaned string was:', cleaned);
             return res.status(500).json({ error: 'JSON parse failed. Got: ' + cleaned.substring(0, 200) });
         }
  
