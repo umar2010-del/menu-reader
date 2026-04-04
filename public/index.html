@@ -509,6 +509,7 @@
             'soy','soybean','eggs','egg','sesame','sulfites','sulphites'
         ];
 
+        let abortController = null;
         let appState = {
             uploadedImages: [],
             menuData: [],
@@ -536,6 +537,7 @@
             appState.selectedAllergen = null;
             document.getElementById('imagePreview').classList.remove('show');
             document.getElementById('previewsGrid').innerHTML = '';
+            document.getElementById('loadingState').classList.remove('show');
         }
 
         function goToUpload() { showScreen('uploadScreen'); }
@@ -740,11 +742,13 @@
             try {
                 const images = appState.uploadedImages.map(img => ({ imageData: img.imageData, mediaType: img.mediaType }));
 
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ images })
-                });
+               abortController = new AbortController();
+const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ images }),
+    signal: abortController.signal
+});
 
                 if (!response.ok) {
                     const err = await response.json();
