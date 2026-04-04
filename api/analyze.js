@@ -30,14 +30,15 @@ Each element represents a menu section:
   }
 ]
  
-IMPORTANT ALLERGEN RULES:
-- Even if the menu does not list allergens, you MUST infer and add likely allergens for every single item based on its name, description, and common knowledge of how the dish is made.
+Rules:
+- Do NOT create a separate section for each individual item. Group related items together under logical section names like "Sides", "Mains", "Appetizers", "Desserts", "Drinks", etc. If the menu has a separate header for each item, combine them into sensible groups.
+- Even if the menu does not list allergens, infer and add likely allergens for every item based on its name, description, and how the dish is commonly made.
 - For example: pasta likely contains gluten and eggs, fried items likely contain gluten, cream sauces contain dairy, etc.
-- Be thorough — it is better to over-report allergens than miss them.
 - Common allergens to check for: gluten, wheat, dairy, milk, eggs, nuts, peanuts, tree nuts, soy, fish, shellfish, sesame, sulfites
 - If no price is visible, use ""
 - If no description is visible, use ""
-- IMPORTANT: Do NOT create a separate section for each individual item. Group related items together under logical section names like "Sides", "Mains", "Appetizers", etc. If the menu has a separate header for each item, combine them into sensible groups.
+- If no allergens, use []
+- Return ONLY the JSON array, nothing else, no extra text`;
  
         const content = [];
         for (const img of images) {
