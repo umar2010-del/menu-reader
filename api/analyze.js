@@ -30,15 +30,22 @@ Each element represents a menu section:
   }
 ]
  
-Rules:
-- Do NOT create a separate section for each individual item. Group related items together under logical section names like "Sides", "Mains", "Appetizers", "Desserts", "Drinks", etc. If the menu has a separate header for each item, combine them into sensible groups.
+GROUPING RULES (most important):
+- You MUST group all items into logical categories. Never create a section with only one item unless it is truly a unique standalone item.
+- Use your knowledge of food to decide the category. Examples: french fries, collard greens, mashed potatoes, asparagus, coleslaw, beans = "Sides". Burgers, steaks, pasta, chicken dishes = "Mains". Cakes, pies, ice cream = "Desserts". Beer, wine, soda, coffee = "Drinks". Soup, salads, small plates = "Appetizers".
+- If the physical menu has a separate header for each item, IGNORE those headers completely and re-group everything yourself.
+- Aim for 3 to 6 sections total for a typical menu. Do not make more sections than necessary.
+ 
+ALLERGEN RULES:
 - Even if the menu does not list allergens, infer and add likely allergens for every item based on its name, description, and how the dish is commonly made.
-- For example: pasta likely contains gluten and eggs, fried items likely contain gluten, cream sauces contain dairy, etc.
-- Common allergens to check for: gluten, wheat, dairy, milk, eggs, nuts, peanuts, tree nuts, soy, fish, shellfish, sesame, sulfites
-- If no price is visible, use ""
-- If no description is visible, use ""
-- If no allergens, use []
-- Return ONLY the JSON array, nothing else, no extra text`;
+- Examples: fried items likely contain gluten, cream sauces contain dairy, pasta contains gluten and eggs, aioli contains eggs, mashed potatoes may contain dairy.
+- Common allergens: gluten, wheat, dairy, milk, eggs, nuts, peanuts, tree nuts, soy, fish, shellfish, sesame, sulfites.
+- If no allergens apply, use [].
+ 
+OTHER RULES:
+- If no price is visible, use "".
+- If no description is visible, use "".
+- Return ONLY the JSON array, nothing else, no extra text.`;
  
         const content = [];
         for (const img of images) {
