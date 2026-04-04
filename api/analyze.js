@@ -13,6 +13,51 @@ module.exports = async function handler(req, res) {
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'OPENROUTER_API_KEY is not set' });
  
+        // Step 1: quick quality check on the first image
+        const qualityPrompt = `Look at this image. Is it clear enough to read menu text from it?
+Reply with ONLY a JSON object in this exact format, nothing else:
+{"readable": true, "reason": ""}
+or
+{"readable": false, "reason": "One sentence explaining why e.g. too blurry, too dark, not a menu"}`;
+ 
+        const qualityContent = [
+            { type: 'image_url', image_url: { url: `data:${images[0].mediaType};base64,${images[0].imageData}` } },
+            { type: 'text', text: qualityPrompt }
+        ];
+ 
+        const qualityResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': 'https://menu-reader.vercel.app',
+                'X-Title': 'Menu Reader'
+            },
+            body: JSON.stringify({
+                model: 'openrouter/auto',
+                messages: [{ role: 'user', content: qualityContent }],
+                temperature: 0.1
+            })
+        });
+ 
+        if (qualityResponse.ok) {
+            const qualityData = await qualityResponse.json();
+            const qualityRaw = qualityData.choices?.[0]?.message?.content || '';
+            try {
+                let qualityCleaned = qualityRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const qualityResult = JSON.parse(qualityCleaned);
+                if (qualityResult.readable === false) {
+                    return res.status(200).json({
+                        qualityWarning: true,
+                        reason: qualityResult.reason || 'Image may be too blurry or unclear to read accurately.'
+                    });
+                }
+            } catch (e) {
+                // if quality check parse fails, just continue to main analysis
+            }
+        }
+ 
+        // Step 2: full menu analysis
         const prompt = `Analyze this restaurant menu image and return ONLY a JSON array — no markdown, no explanation, no code fences, just raw JSON starting with [ and ending with ].
  
 Each element represents a menu section:
@@ -34,7 +79,7 @@ GROUPING RULES (most important):
 - You MUST group all items into logical categories. Never create a section with only one item unless it is truly a unique standalone item.
 - Use your knowledge of food to decide the category. Examples: french fries, collard greens, mashed potatoes, asparagus, coleslaw, beans = "Sides". Burgers, steaks, pasta, chicken dishes = "Mains". Cakes, pies, ice cream = "Desserts". Beer, wine, soda, coffee = "Drinks". Soup, salads, small plates = "Appetizers".
 - If the physical menu has a separate header for each item, IGNORE those headers completely and re-group everything yourself.
-- Aim for 3 to 6 sections total for a typical menu. Do not make more sections than necessary.
+- Aim for 3 to 6 sections total for a typical menu.
  
 ALLERGEN RULES:
 - Even if the menu does not list allergens, infer and add likely allergens for every item based on its name, description, and how the dish is commonly made.
@@ -102,4 +147,3 @@ OTHER RULES:
         res.status(500).json({ error: 'Server error: ' + err.message });
     }
 }
- 
