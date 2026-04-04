@@ -773,6 +773,9 @@
                     if (!retryResponse.ok) throw new Error(retryData.error || 'Server error');
                     var parsed = JSON.parse(retryData.result);
                 } else {
+                    if (!data.result) {
+                        throw new Error(data.error || 'No result returned from server');
+                    }
                     var parsed = JSON.parse(data.result);
                 }
 
