@@ -37,7 +37,7 @@ IMPORTANT ALLERGEN RULES:
 - Common allergens to check for: gluten, wheat, dairy, milk, eggs, nuts, peanuts, tree nuts, soy, fish, shellfish, sesame, sulfites
 - If no price is visible, use ""
 - If no description is visible, use ""
-- Return ONLY the JSON array, nothing else`;
+- IMPORTANT: Do NOT create a separate section for each individual item. Group related items together under logical section names like "Sides", "Mains", "Appetizers", etc. If the menu has a separate header for each item, combine them into sensible groups.
  
         const content = [];
         for (const img of images) {
