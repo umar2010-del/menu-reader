@@ -1,7 +1,7 @@
 # 🍽️ Menu Reader
 
 🔗 **Live App:** [menu-reader-ochre.vercel.app](https://menu-reader-ochre.vercel.app)  
-📂 **Repository:** [github.com/DestroyerUmar/menu-reader](https://github.com/DestroyerUmar/menu-reader)  
+📂 **Repository:** [github.com/umar2010-del/menu-reader/tree/main](https://github.com/umar2010-del/menu-reader/tree/main)  
 📱 **Problem it solves:** People with visual impairments, reading difficulties, or food allergies often struggle to read restaurant menus — especially ones with small text, poor lighting, or no allergen information. Menu Reader makes any menu instantly accessible to everyone.
 
 ---
