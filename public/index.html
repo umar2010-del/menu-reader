@@ -90,8 +90,8 @@
         .step-title { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 6px; }
         .step-description { font-size: var(--font-size-sm); color: var(--muted); }
  
-        .upload-screen, .results-screen, .order-summary-screen { min-height: 100vh; padding: 40px 20px; }
-        .upload-container, .summary-container { max-width: 600px; margin: 0 auto; }
+        .upload-screen, .results-screen, .order-summary-screen, .allergy-screen { min-height: 100vh; padding: 40px 20px; }
+        .upload-container, .summary-container, .allergy-container { max-width: 600px; margin: 0 auto; }
  
         .back-btn {
             background: var(--white);
@@ -126,14 +126,12 @@
  
         .divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: var(--font-size-sm); }
  
-        /* image previews grid */
         .previews-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 12px;
             margin-bottom: 16px;
         }
- 
         .preview-thumb {
             position: relative;
             border-radius: 8px;
@@ -142,23 +140,15 @@
             background: var(--bg);
             border: 1px solid var(--border);
         }
- 
-        .preview-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
- 
+        .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .preview-thumb .remove-thumb {
             position: absolute;
-            top: 4px;
-            right: 4px;
+            top: 4px; right: 4px;
             background: rgba(0,0,0,0.6);
             color: white;
             border: none;
             border-radius: 50%;
-            width: 22px;
-            height: 22px;
+            width: 22px; height: 22px;
             font-size: 12px;
             cursor: pointer;
             display: flex;
@@ -199,6 +189,103 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
  
+        /* allergy selection screen */
+        .allergy-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        }
+ 
+        .allergy-card h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+ 
+        .allergy-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+ 
+        .allergy-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
+            background: var(--white);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .allergy-chip:hover { border-color: var(--red); color: var(--red); }
+        .allergy-chip.selected { background: var(--red); border-color: var(--red); color: white; }
+ 
+        .custom-allergy-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+ 
+        .custom-allergy-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: var(--font-size-sm);
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+        }
+        .custom-allergy-input:focus { border-color: var(--blue); }
+ 
+        .custom-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+ 
+        .custom-tag {
+            background: var(--orange);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+ 
+        .custom-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+        }
+ 
+        .allergy-skip {
+            text-align: center;
+            margin-top: 12px;
+        }
+ 
+        .allergy-skip button {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            text-decoration: underline;
+        }
+ 
+        /* results */
         .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .allergen-filter { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
  
@@ -215,6 +302,34 @@
         .allergen-badge:hover { border-color: var(--blue); color: var(--blue); }
         .allergen-badge.active { background: var(--red); border-color: var(--red); color: white; }
  
+        .user-allergy-banner {
+            background: #fef2f2;
+            border: 2px solid var(--red);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+ 
+        .user-allergy-banner-text {
+            font-size: var(--font-size-sm);
+            color: var(--red);
+            font-weight: 600;
+        }
+ 
+        .user-allergy-banner button {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            text-decoration: underline;
+        }
+ 
         .menu-sections { display: grid; gap: 32px; }
         .section { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
         .section-title { background: var(--blue); color: white; padding: 16px 20px; font-size: var(--font-size-lg); font-weight: 700; }
@@ -229,6 +344,20 @@
         }
         .menu-item:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         .menu-item.highlighted { background: rgba(220,38,38,0.08); border-color: var(--red); }
+        .menu-item.user-allergy-warning { background: #fef2f2; border: 2px solid var(--red); }
+ 
+        .warning-banner {
+            background: var(--red);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
  
         .menu-item-header { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; }
         .menu-item-name { font-size: var(--font-size-lg); font-weight: 600; flex: 1; }
@@ -238,6 +367,7 @@
  
         .allergen-tag { background: var(--yellow); color: white; padding: 4px 8px; border-radius: 4px; font-size: var(--font-size-sm); font-weight: 500; }
         .allergen-tag.highlighted { background: var(--red); }
+        .allergen-tag.user-match { background: var(--red); font-weight: 700; }
  
         .menu-item-controls { display: flex; gap: 8px; }
         .favorite-btn { background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s; }
@@ -308,13 +438,13 @@
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <div class="step-title">Extract Text</div>
-                    <div class="step-description">AI instantly reads and organizes all menu items</div>
+                    <div class="step-title">Set Allergies</div>
+                    <div class="step-description">Tell us what you're allergic to and we'll flag it</div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-title">Order Safely</div>
-                    <div class="step-description">Check allergens, save favorites, show to waiter</div>
+                    <div class="step-description">Dangerous items are highlighted in red automatically</div>
                 </div>
             </div>
         </div>
@@ -360,17 +490,59 @@
             </div>
         </div>
  
+        <!-- Allergy Selection Screen -->
+        <div class="screen allergy-screen" id="allergyScreen">
+            <div class="allergy-container">
+                <h2 class="screen-title">🛡️ Your Allergies</h2>
+                <p class="screen-subtitle">Select any allergies you have so we can warn you on the menu</p>
+ 
+                <div class="allergy-card">
+                    <h3>Common Allergens</h3>
+                    <div class="allergy-chips" id="allergyChips">
+                        <button class="allergy-chip" data-allergen="gluten">🌾 Gluten</button>
+                        <button class="allergy-chip" data-allergen="dairy">🥛 Dairy</button>
+                        <button class="allergy-chip" data-allergen="eggs">🥚 Eggs</button>
+                        <button class="allergy-chip" data-allergen="nuts">🥜 Nuts</button>
+                        <button class="allergy-chip" data-allergen="peanuts">🥜 Peanuts</button>
+                        <button class="allergy-chip" data-allergen="shellfish">🦐 Shellfish</button>
+                        <button class="allergy-chip" data-allergen="fish">🐟 Fish</button>
+                        <button class="allergy-chip" data-allergen="soy">🫘 Soy</button>
+                        <button class="allergy-chip" data-allergen="sesame">🌱 Sesame</button>
+                        <button class="allergy-chip" data-allergen="sulfites">🍷 Sulfites</button>
+                    </div>
+                </div>
+ 
+                <div class="allergy-card">
+                    <h3>Custom Ingredients</h3>
+                    <p style="font-size:var(--font-size-sm);color:var(--muted);margin-bottom:12px;">Type any specific ingredient you're allergic to</p>
+                    <div class="custom-allergy-row">
+                        <input type="text" class="custom-allergy-input" id="customAllergyInput" placeholder="e.g. avocado, mango, garlic...">
+                        <button class="btn-small primary" onclick="addCustomAllergy()">Add</button>
+                    </div>
+                    <div class="custom-tags" id="customTags"></div>
+                </div>
+ 
+                <button class="btn-primary" onclick="goToResults()" style="width:100%;margin-bottom:12px;">
+                    View Menu →
+                </button>
+                <div class="allergy-skip">
+                    <button onclick="goToResults()">Skip — I don't have any allergies</button>
+                </div>
+            </div>
+        </div>
+ 
         <!-- Results -->
         <div class="screen results-screen" id="resultsScreen">
             <div style="max-width:1200px;margin:0 auto;">
-                <button class="back-btn" onclick="goHome()">← Start Over</button>
+                <button class="back-btn" onclick="showScreen('allergyScreen')">← Change Allergies</button>
                 <div class="results-header">
                     <div>
                         <h2 class="screen-title">Your Menu</h2>
-                        <p class="screen-subtitle">Tap allergens to highlight items containing them</p>
+                        <p class="screen-subtitle">Items containing your allergens are highlighted in red</p>
                     </div>
                     <button class="btn-primary" onclick="goToOrderSummary()" style="white-space:nowrap;">📋 Show My Order</button>
                 </div>
+                <div id="userAllergyBanner"></div>
                 <div class="allergen-filter" id="allergenFilter"></div>
                 <div class="menu-sections" id="menuSections"></div>
             </div>
@@ -394,21 +566,23 @@
     </div>
  
     <script>
-        const ALLERGENS = [
-            'nuts','peanuts','almonds','walnuts','cashews','pistachios','pecans',
+        const COMMON_ALLERGENS = [
+            'nuts','peanuts','almonds','walnuts','cashews','pistachios','pecans','tree nuts',
             'dairy','milk','cheese','butter','cream','yogurt',
             'gluten','wheat','barley','rye',
             'shellfish','shrimp','crab','lobster','oyster','clam','mussels',
             'fish','salmon','tuna','cod','halibut',
-            'soy','soybean','eggs','egg','sesame','sulfites','sulphites','tree nuts'
+            'soy','soybean','eggs','egg','sesame','sulfites','sulphites'
         ];
  
         let appState = {
-            uploadedImages: [], // array of { dataUrl, mediaType, imageData }
+            uploadedImages: [],
             menuData: [],
             favorites: new Set(),
             selectedAllergen: null,
-            webcamStream: null
+            webcamStream: null,
+            userAllergens: new Set(),    // selected from chips
+            customAllergens: [],          // typed custom ones
         };
  
         function saveFavorites() {
@@ -431,7 +605,9 @@
         }
  
         function goToUpload() { showScreen('uploadScreen'); }
+ 
         function goToResults() { showScreen('resultsScreen'); }
+ 
         function goToOrderSummary() { showScreen('orderSummaryScreen'); renderOrderSummary(); }
  
         // accessibility
@@ -450,6 +626,84 @@
         document.getElementById('darkModeToggle').addEventListener('change', e => document.body.classList.toggle('dark-mode', e.target.checked));
         document.getElementById('highContrastToggle').addEventListener('change', e => document.body.classList.toggle('high-contrast', e.target.checked));
         document.getElementById('dyslexiaToggle').addEventListener('change', e => document.body.classList.toggle('dyslexia-font', e.target.checked));
+ 
+        // allergy chips
+        document.querySelectorAll('.allergy-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const allergen = chip.dataset.allergen;
+                if (appState.userAllergens.has(allergen)) {
+                    appState.userAllergens.delete(allergen);
+                    chip.classList.remove('selected');
+                } else {
+                    appState.userAllergens.add(allergen);
+                    chip.classList.add('selected');
+                }
+            });
+        });
+ 
+        // custom allergen input
+        document.getElementById('customAllergyInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addCustomAllergy();
+        });
+ 
+        function addCustomAllergy() {
+            const input = document.getElementById('customAllergyInput');
+            const val = input.value.trim().toLowerCase();
+            if (!val) return;
+            if (!appState.customAllergens.includes(val)) {
+                appState.customAllergens.push(val);
+                renderCustomTags();
+            }
+            input.value = '';
+        }
+ 
+        function removeCustomAllergy(val) {
+            appState.customAllergens = appState.customAllergens.filter(a => a !== val);
+            renderCustomTags();
+        }
+ 
+        function renderCustomTags() {
+            const container = document.getElementById('customTags');
+            container.innerHTML = '';
+            appState.customAllergens.forEach(val => {
+                const tag = document.createElement('div');
+                tag.className = 'custom-tag';
+                tag.innerHTML = `${val} <button onclick="removeCustomAllergy('${val}')">✕</button>`;
+                container.appendChild(tag);
+            });
+        }
+ 
+        function getAllUserAllergens() {
+            return new Set([
+                ...appState.userAllergens,
+                ...appState.customAllergens
+            ]);
+        }
+ 
+        function itemMatchesUserAllergens(item) {
+            const userAllergens = getAllUserAllergens();
+            if (userAllergens.size === 0) return false;
+            const itemAllergens = extractAllergensFromItem(item);
+            const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
+            for (const ua of userAllergens) {
+                if (itemAllergens.includes(ua)) return true;
+                if (itemText.includes(ua)) return true;
+            }
+            return false;
+        }
+ 
+        function getMatchingUserAllergens(item) {
+            const userAllergens = getAllUserAllergens();
+            const itemAllergens = extractAllergensFromItem(item);
+            const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
+            const matches = [];
+            for (const ua of userAllergens) {
+                if (itemAllergens.includes(ua) || itemText.includes(ua)) {
+                    matches.push(ua);
+                }
+            }
+            return matches;
+        }
  
         // upload
         const uploadZone = document.getElementById('uploadZone');
@@ -480,11 +734,7 @@
                     const parts = dataUrl.split(',');
                     const match = parts[0].match(/data:(.*);base64/);
                     if (!match) return;
-                    appState.uploadedImages.push({
-                        dataUrl,
-                        mediaType: match[1],
-                        imageData: parts[1]
-                    });
+                    appState.uploadedImages.push({ dataUrl, mediaType: match[1], imageData: parts[1] });
                     loaded++;
                     if (loaded === files.length) renderPreviews();
                 };
@@ -498,10 +748,7 @@
             appState.uploadedImages.forEach((img, idx) => {
                 const thumb = document.createElement('div');
                 thumb.className = 'preview-thumb';
-                thumb.innerHTML = `
-                    <img src="${img.dataUrl}" alt="Menu photo ${idx + 1}">
-                    <button class="remove-thumb" onclick="removeImage(${idx})">✕</button>
-                `;
+                thumb.innerHTML = `<img src="${img.dataUrl}" alt="Menu photo ${idx + 1}"><button class="remove-thumb" onclick="removeImage(${idx})">✕</button>`;
                 grid.appendChild(thumb);
             });
             document.getElementById('imagePreview').classList.add('show');
@@ -525,12 +772,8 @@
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
             } catch (e) {
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                } catch (err) {
-                    alert('Could not access camera: ' + err.message);
-                    return;
-                }
+                try { stream = await navigator.mediaDevices.getUserMedia({ video: true }); }
+                catch (err) { alert('Could not access camera: ' + err.message); return; }
             }
             appState.webcamStream = stream;
             video.srcObject = stream;
@@ -554,19 +797,12 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             const dataUrl = canvas.toDataURL('image/jpeg');
             stopWebcam();
-            appState.uploadedImages.push({
-                dataUrl,
-                mediaType: 'image/jpeg',
-                imageData: dataUrl.split(',')[1]
-            });
+            appState.uploadedImages.push({ dataUrl, mediaType: 'image/jpeg', imageData: dataUrl.split(',')[1] });
             renderPreviews();
         }
  
         async function extractText() {
-            if (appState.uploadedImages.length === 0) {
-                alert('Please select at least one image first.');
-                return;
-            }
+            if (appState.uploadedImages.length === 0) { alert('Please select at least one image first.'); return; }
  
             const loadingState = document.getElementById('loadingState');
             const loadingText = document.getElementById('loadingText');
@@ -576,10 +812,7 @@
                 : 'Reading menu... this may take a moment';
  
             try {
-                const images = appState.uploadedImages.map(img => ({
-                    imageData: img.imageData,
-                    mediaType: img.mediaType
-                }));
+                const images = appState.uploadedImages.map(img => ({ imageData: img.imageData, mediaType: img.mediaType }));
  
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -606,12 +839,11 @@
                 appState.favorites = new Set();
                 saveFavorites();
  
-                if (appState.menuData.length === 0) {
-                    alert('Could not find any menu items. Try a clearer photo.');
-                    return;
-                }
+                if (appState.menuData.length === 0) { alert('Could not find any menu items. Try a clearer photo.'); return; }
  
-                goToResults();
+                // go to allergy screen first
+                showScreen('allergyScreen');
+ 
             } catch (error) {
                 console.error(error);
                 alert('Error reading menu: ' + error.message);
@@ -623,7 +855,7 @@
         function useDemoMenu() {
             appState.menuData = [
                 { section: 'Appetizers', items: [
-                    { name: 'Calamari Fritti', price: '$12', description: 'Crispy squid rings with marinara sauce', allergens: ['shellfish'], id: 'calamari_fritti' },
+                    { name: 'Calamari Fritti', price: '$12', description: 'Crispy squid rings with marinara sauce', allergens: ['shellfish', 'gluten', 'eggs'], id: 'calamari_fritti' },
                     { name: 'Hummus & Pita', price: '$8', description: 'Chickpea dip with olive oil and warm pita', allergens: ['sesame', 'gluten'], id: 'hummus_pita' },
                     { name: 'Bruschetta', price: '$9', description: 'Tomato, basil, garlic on toasted bread', allergens: ['gluten'], id: 'bruschetta' },
                 ]},
@@ -638,17 +870,31 @@
                 ]},
                 { section: 'Drinks', items: [
                     { name: 'Iced Tea', price: '$3', description: 'Fresh-brewed iced tea', allergens: [], id: 'iced_tea' },
-                    { name: 'House Wine', price: '$6', description: "Ask your server for today's selection", allergens: [], id: 'house_wine' },
+                    { name: 'House Wine', price: '$6', description: "Ask your server for today's selection", allergens: ['sulfites'], id: 'house_wine' },
                 ]}
             ];
             appState.favorites = new Set();
             saveFavorites();
-            goToResults();
+            showScreen('allergyScreen');
         }
  
         function renderResults() {
             const menuSections = document.getElementById('menuSections');
             menuSections.innerHTML = '';
+ 
+            // user allergy banner
+            const banner = document.getElementById('userAllergyBanner');
+            const userAllergens = getAllUserAllergens();
+            if (userAllergens.size > 0) {
+                const list = Array.from(userAllergens).join(', ');
+                banner.innerHTML = `
+                    <div class="user-allergy-banner">
+                        <div class="user-allergy-banner-text">⚠️ Showing warnings for: ${list}</div>
+                        <button onclick="showScreen('allergyScreen')">Edit</button>
+                    </div>`;
+            } else {
+                banner.innerHTML = '';
+            }
  
             appState.menuData.forEach(section => {
                 const sectionDiv = document.createElement('div');
@@ -666,6 +912,17 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'menu-item';
                     itemDiv.id = item.id;
+ 
+                    const matchingUserAllergens = getMatchingUserAllergens(item);
+                    const hasUserAllergyMatch = matchingUserAllergens.length > 0;
+ 
+                    if (hasUserAllergyMatch) {
+                        itemDiv.classList.add('user-allergy-warning');
+                        const warnDiv = document.createElement('div');
+                        warnDiv.className = 'warning-banner';
+                        warnDiv.innerHTML = `⚠️ Contains: ${matchingUserAllergens.join(', ')}`;
+                        itemDiv.appendChild(warnDiv);
+                    }
  
                     if (appState.selectedAllergen && hasAllergen(item, appState.selectedAllergen)) {
                         itemDiv.classList.add('highlighted');
@@ -703,6 +960,7 @@
                             const tag = document.createElement('span');
                             tag.className = 'allergen-tag';
                             if (appState.selectedAllergen === allergen) tag.classList.add('highlighted');
+                            if (matchingUserAllergens.includes(allergen)) tag.classList.add('user-match');
                             tag.textContent = allergen.charAt(0).toUpperCase() + allergen.slice(1);
                             allergenDiv.appendChild(tag);
                         });
@@ -732,7 +990,7 @@
         function extractAllergensFromItem(item) {
             if (item.allergens && Array.isArray(item.allergens)) return item.allergens.map(a => a.toLowerCase());
             const text = (item.name + ' ' + (item.description || '')).toLowerCase();
-            return ALLERGENS.filter(a => text.includes(a));
+            return COMMON_ALLERGENS.filter(a => text.includes(a));
         }
  
         function hasAllergen(item, allergen) {
@@ -744,7 +1002,7 @@
             appState.menuData.forEach(s => s.items.forEach(item => extractAllergensFromItem(item).forEach(a => allAllergens.add(a))));
  
             const filterDiv = document.getElementById('allergenFilter');
-            filterDiv.innerHTML = '<strong>Allergens:</strong> ';
+            filterDiv.innerHTML = '<strong>Filter by allergen:</strong> ';
  
             allAllergens.forEach(allergen => {
                 const badge = document.createElement('button');
@@ -757,7 +1015,7 @@
             if (appState.selectedAllergen) {
                 const clearBtn = document.createElement('button');
                 clearBtn.className = 'allergen-badge';
-                clearBtn.textContent = '✕ Clear Filter';
+                clearBtn.textContent = '✕ Clear';
                 clearBtn.addEventListener('click', () => { appState.selectedAllergen = null; renderResults(); });
                 filterDiv.appendChild(clearBtn);
             }
@@ -800,7 +1058,8 @@
  
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'summary-item-name';
-                nameDiv.innerHTML = `<strong>${item.name}</strong><br><small>${item.section}</small>`;
+                const allergyWarning = itemMatchesUserAllergens(item) ? ' ⚠️' : '';
+                nameDiv.innerHTML = `<strong>${item.name}${allergyWarning}</strong><br><small>${item.section}</small>`;
                 itemDiv.appendChild(nameDiv);
  
                 const priceDiv = document.createElement('div');
@@ -811,11 +1070,7 @@
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.textContent = '✕';
-                removeBtn.addEventListener('click', () => {
-                    appState.favorites.delete(item.id);
-                    saveFavorites();
-                    renderOrderSummary();
-                });
+                removeBtn.addEventListener('click', () => { appState.favorites.delete(item.id); saveFavorites(); renderOrderSummary(); });
                 itemDiv.appendChild(removeBtn);
                 content.appendChild(itemDiv);
  
@@ -849,3 +1104,4 @@
     </script>
 </body>
 </html>
+ 
