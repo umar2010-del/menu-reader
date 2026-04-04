@@ -753,31 +753,34 @@
                 const data = await response.json();
 
                 // if image quality is bad, warn the user and let them decide
-                if (data.qualityWarning) {
-                    loadingState.classList.remove('show');
-                    const proceed = confirm(
-                        '⚠️ Image Quality Warning\n\n' +
-                        (data.reason || 'The image may be too blurry or unclear.') +
-                        '\n\nResults may be inaccurate.\n\nClick OK to continue anyway, or Cancel to upload a better photo.'
-                    );
-                    if (!proceed) return;
+               if (data.qualityWarning) {
+    loadingState.classList.remove('show');
+    const proceed = confirm(
+        '⚠️ Image Quality Warning\n\n' +
+        (data.reason || 'The image may be too blurry or unclear.') +
+        '\n\nResults may be inaccurate.\n\nClick OK to continue anyway, or Cancel to upload a better photo.'
+    );
+    if (!proceed) return;
+    loadingState.classList.add('show');
+}
 
-                    // user chose to continue — re-fetch skipping the quality check
-                    loadingState.classList.add('show');
-                    const retryResponse = await fetch('/api/analyze', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ images, skipQualityCheck: true })
-                    });
-                    const retryData = await retryResponse.json();
-                    if (!retryResponse.ok) throw new Error(retryData.error || 'Server error');
-                    var parsed = JSON.parse(retryData.result);
-                } else {
-                    if (!data.result) {
-                        throw new Error(data.error || 'No result returned from server');
-                    }
-                    var parsed = JSON.parse(data.result);
-                }
+if (data.qualityWarning || !data.result) {
+    if (data.qualityWarning) {
+        const retryResponse = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images, skipQualityCheck: true })
+        });
+        const retryData = await retryResponse.json();
+        if (!retryResponse.ok) throw new Error(retryData.error || 'Server error');
+        if (!retryData.result) throw new Error(retryData.error || 'Could not read menu from image');
+        var parsed = JSON.parse(retryData.result);
+    } else {
+        throw new Error(data.error || 'Could not read menu from image');
+    }
+} else {
+    var parsed = JSON.parse(data.result);
+}
 
                 appState.menuData = parsed.map(section => ({
                     ...section,
