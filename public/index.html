@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
- 
+
         :root {
             --blue: #2563eb;
             --blue-dark: #1d4ed8;
@@ -27,11 +27,11 @@
             --font-size-2xl: 24px;
             --font-size-3xl: 28px;
         }
- 
+
         body.high-contrast { --white: #000; --bg: #111; --text: #ff0; --muted: #ccc; --border: #ffff00; }
         body.dark-mode { --white: #1e293b; --bg: #0f172a; --text: #f1f5f9; --muted: #94a3b8; }
         body.dyslexia-font { font-family: 'OpenDyslexic', sans-serif; }
- 
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg);
@@ -39,7 +39,7 @@
             font-size: var(--font-size-base);
             transition: background-color 0.3s, color 0.3s;
         }
- 
+
         .accessibility-bar {
             background: var(--white);
             border-bottom: 2px solid var(--border);
@@ -49,7 +49,7 @@
             align-items: center;
             flex-wrap: wrap;
         }
- 
+
         .accessibility-control label {
             display: flex;
             align-items: center;
@@ -57,19 +57,19 @@
             cursor: pointer;
             font-size: var(--font-size-sm);
         }
- 
+
         .accessibility-control input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); }
         .accessibility-control input[type="range"] { width: 120px; accent-color: var(--blue); }
- 
+
         .screen { display: none; }
         .screen.active { display: block; }
- 
+
         .home-screen { min-height: 100vh; padding: 40px 20px; background: #eff6ff; }
         .home-content { text-align: center; margin-bottom: 40px; }
         .app-title { font-size: var(--font-size-3xl); font-weight: 700; color: var(--blue-dark); margin-bottom: 12px; }
         .app-tagline { font-size: var(--font-size-lg); color: var(--muted); }
         .home-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 32px 0; }
- 
+
         .btn-primary, .btn-secondary {
             padding: 16px 32px;
             font-size: var(--font-size-lg);
@@ -83,16 +83,16 @@
         .btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
         .btn-secondary { background: var(--orange); color: white; }
         .btn-secondary:hover { background: #c2410c; transform: translateY(-2px); }
- 
+
         .how-it-works { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
         .step { background: var(--white); padding: 24px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
         .step-number { font-size: var(--font-size-2xl); font-weight: 700; color: var(--blue); margin-bottom: 8px; }
         .step-title { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 6px; }
         .step-description { font-size: var(--font-size-sm); color: var(--muted); }
- 
+
         .upload-screen, .results-screen, .order-summary-screen, .allergy-screen { min-height: 100vh; padding: 40px 20px; }
         .upload-container, .summary-container, .allergy-container { max-width: 600px; margin: 0 auto; }
- 
+
         .back-btn {
             background: var(--white);
             color: var(--blue);
@@ -105,10 +105,10 @@
             transition: all 0.2s;
         }
         .back-btn:hover { background: var(--blue); color: white; }
- 
+
         .screen-title { font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: 6px; }
         .screen-subtitle { font-size: var(--font-size-sm); color: var(--muted); margin-bottom: 28px; }
- 
+
         .upload-zone {
             border: 3px dashed var(--border);
             border-radius: 10px;
@@ -123,9 +123,9 @@
         .upload-zone-text { font-size: var(--font-size-lg); font-weight: 500; margin-bottom: 8px; }
         .upload-zone-hint { font-size: var(--font-size-sm); color: var(--muted); }
         #imageInput { display: none; }
- 
+
         .divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: var(--font-size-sm); }
- 
+
         .previews-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -155,14 +155,14 @@
             align-items: center;
             justify-content: center;
         }
- 
+
         .image-preview { display: none; background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
         .image-preview.show { display: block; }
- 
+
         .webcam-section { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
         #webcam { width: 100%; border-radius: 8px; margin-bottom: 16px; display: none; }
         .webcam-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
- 
+
         .btn-small {
             padding: 10px 20px;
             font-size: var(--font-size-sm);
@@ -176,7 +176,7 @@
         .btn-small.primary:hover { background: var(--blue-dark); }
         .btn-small.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         .btn-small.secondary:hover { background: var(--border); }
- 
+
         .loading { display: none; text-align: center; padding: 40px 20px; }
         .loading.show { display: block; }
         .spinner {
@@ -188,8 +188,7 @@
             margin: 0 auto 16px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
- 
-        /* allergy selection screen */
+
         .allergy-card {
             background: var(--white);
             border-radius: 10px;
@@ -197,20 +196,8 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.07);
         }
- 
-        .allergy-card h3 {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
- 
-        .allergy-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
- 
+        .allergy-card h3 { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 16px; }
+        .allergy-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
         .allergy-chip {
             padding: 8px 16px;
             border-radius: 20px;
@@ -224,13 +211,8 @@
         }
         .allergy-chip:hover { border-color: var(--red); color: var(--red); }
         .allergy-chip.selected { background: var(--red); border-color: var(--red); color: white; }
- 
-        .custom-allergy-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
- 
+
+        .custom-allergy-row { display: flex; gap: 10px; margin-top: 16px; }
         .custom-allergy-input {
             flex: 1;
             padding: 10px 14px;
@@ -242,14 +224,7 @@
             outline: none;
         }
         .custom-allergy-input:focus { border-color: var(--blue); }
- 
-        .custom-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
- 
+        .custom-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
         .custom-tag {
             background: var(--orange);
             color: white;
@@ -260,35 +235,12 @@
             align-items: center;
             gap: 6px;
         }
- 
-        .custom-tag button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 0;
-            line-height: 1;
-        }
- 
-        .allergy-skip {
-            text-align: center;
-            margin-top: 12px;
-        }
- 
-        .allergy-skip button {
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            text-decoration: underline;
-        }
- 
-        /* results */
+        .custom-tag button { background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+        .allergy-skip { text-align: center; margin-top: 12px; }
+        .allergy-skip button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: var(--font-size-sm); text-decoration: underline; }
+
         .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .allergen-filter { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
- 
         .allergen-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -301,7 +253,7 @@
         }
         .allergen-badge:hover { border-color: var(--blue); color: var(--blue); }
         .allergen-badge.active { background: var(--red); border-color: var(--red); color: white; }
- 
+
         .user-allergy-banner {
             background: #fef2f2;
             border: 2px solid var(--red);
@@ -314,27 +266,14 @@
             flex-wrap: wrap;
             gap: 10px;
         }
- 
-        .user-allergy-banner-text {
-            font-size: var(--font-size-sm);
-            color: var(--red);
-            font-weight: 600;
-        }
- 
-        .user-allergy-banner button {
-            background: none;
-            border: none;
-            color: var(--red);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            text-decoration: underline;
-        }
- 
+        .user-allergy-banner-text { font-size: var(--font-size-sm); color: var(--red); font-weight: 600; }
+        .user-allergy-banner button { background: none; border: none; color: var(--red); cursor: pointer; font-size: var(--font-size-sm); text-decoration: underline; }
+
         .menu-sections { display: grid; gap: 32px; }
         .section { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
         .section-title { background: var(--blue); color: white; padding: 16px 20px; font-size: var(--font-size-lg); font-weight: 700; }
         .menu-items { padding: 20px; display: grid; gap: 16px; }
- 
+
         .menu-item {
             padding: 16px;
             border: 1px solid var(--border);
@@ -345,7 +284,7 @@
         .menu-item:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         .menu-item.highlighted { background: rgba(220,38,38,0.08); border-color: var(--red); }
         .menu-item.user-allergy-warning { background: #fef2f2; border: 2px solid var(--red); }
- 
+
         .warning-banner {
             background: var(--red);
             color: white;
@@ -358,21 +297,20 @@
             align-items: center;
             gap: 6px;
         }
- 
+
         .menu-item-header { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; }
         .menu-item-name { font-size: var(--font-size-lg); font-weight: 600; flex: 1; }
         .menu-item-price { font-size: var(--font-size-lg); font-weight: 700; color: var(--blue); white-space: nowrap; }
         .menu-item-description { font-size: var(--font-size-sm); color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
         .menu-item-allergens { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
- 
         .allergen-tag { background: var(--yellow); color: white; padding: 4px 8px; border-radius: 4px; font-size: var(--font-size-sm); font-weight: 500; }
         .allergen-tag.highlighted { background: var(--red); }
         .allergen-tag.user-match { background: var(--red); font-weight: 700; }
- 
+
         .menu-item-controls { display: flex; gap: 8px; }
         .favorite-btn { background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s; }
         .favorite-btn:hover { transform: scale(1.2); }
- 
+
         .summary-items { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
         .summary-item { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
         .summary-item:last-child { border-bottom: none; }
@@ -380,18 +318,15 @@
         .summary-item-price { font-weight: 700; color: var(--blue); white-space: nowrap; }
         .remove-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; transition: transform 0.2s; }
         .remove-btn:hover { transform: scale(1.2); }
- 
         .summary-total { text-align: right; padding: 16px 20px; border-top: 2px solid var(--border); font-size: var(--font-size-lg); font-weight: 700; }
         .summary-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
- 
         .btn-action { padding: 12px 24px; font-size: var(--font-size-sm); font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
         .btn-action.primary { background: var(--green); color: white; }
         .btn-action.primary:hover { background: #059669; }
         .btn-action.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         .btn-action.secondary:hover { background: var(--border); }
- 
         .empty-order { text-align: center; padding: 40px; color: var(--muted); }
- 
+
         @media (max-width: 768px) {
             .app-title { font-size: var(--font-size-2xl); }
             .how-it-works { grid-template-columns: 1fr; }
@@ -401,7 +336,7 @@
 </head>
 <body>
     <div style="max-width:1200px;margin:0 auto;">
- 
+
         <div class="accessibility-bar">
             <div class="accessibility-control">
                 <label>
@@ -419,7 +354,7 @@
                 <label><input type="checkbox" id="dyslexiaToggle"> Dyslexia Font</label>
             </div>
         </div>
- 
+
         <!-- Home -->
         <div class="screen active home-screen" id="homeScreen">
             <div class="home-content">
@@ -448,22 +383,22 @@
                 </div>
             </div>
         </div>
- 
+
         <!-- Upload -->
         <div class="screen upload-screen" id="uploadScreen">
             <div class="upload-container">
                 <button class="back-btn" onclick="goHome()">← Back</button>
                 <h2 class="screen-title">Upload Menu</h2>
                 <p class="screen-subtitle">Select one or multiple photos at once</p>
- 
+
                 <div class="upload-zone" id="uploadZone">
                     <div class="upload-zone-text">📸 Drop your menu photos here</div>
                     <div class="upload-zone-hint">or click to select images (you can pick multiple)</div>
                 </div>
                 <input type="file" id="imageInput" accept="image/*" multiple>
- 
+
                 <div class="divider">— OR —</div>
- 
+
                 <div class="webcam-section">
                     <video id="webcam" autoplay playsinline></video>
                     <div class="webcam-buttons" id="webcamButtons" style="display:none;">
@@ -471,31 +406,31 @@
                         <button class="btn-small primary" onclick="captureWebcam()">📸 Capture</button>
                     </div>
                 </div>
- 
+
                 <div class="image-preview" id="imagePreview">
                     <div class="previews-grid" id="previewsGrid"></div>
                     <button class="btn-small secondary" onclick="document.getElementById('imageInput').click()" style="margin-bottom:12px;">+ Add More Photos</button>
                     <button class="btn-primary" onclick="extractText()" style="width:100%;">✨ Extract Text</button>
                 </div>
- 
+
                 <div style="text-align:center;margin-top:20px;color:var(--muted);">
                     <small>Or try a demo:</small><br>
                     <button class="btn-small secondary" onclick="useDemoMenu()" style="margin-top:8px;">🍴 Load Demo Menu</button>
                 </div>
- 
+
                 <div class="loading" id="loadingState">
                     <div class="spinner"></div>
                     <p id="loadingText">Reading menu... this may take a moment</p>
                 </div>
             </div>
         </div>
- 
-        <!-- Allergy Selection Screen -->
+
+        <!-- Allergy Selection -->
         <div class="screen allergy-screen" id="allergyScreen">
             <div class="allergy-container">
                 <h2 class="screen-title">🛡️ Your Allergies</h2>
                 <p class="screen-subtitle">Select any allergies you have so we can warn you on the menu</p>
- 
+
                 <div class="allergy-card">
                     <h3>Common Allergens</h3>
                     <div class="allergy-chips" id="allergyChips">
@@ -511,7 +446,7 @@
                         <button class="allergy-chip" data-allergen="sulfites">🍷 Sulfites</button>
                     </div>
                 </div>
- 
+
                 <div class="allergy-card">
                     <h3>Custom Ingredients</h3>
                     <p style="font-size:var(--font-size-sm);color:var(--muted);margin-bottom:12px;">Type any specific ingredient you're allergic to</p>
@@ -521,16 +456,14 @@
                     </div>
                     <div class="custom-tags" id="customTags"></div>
                 </div>
- 
-                <button class="btn-primary" onclick="goToResults()" style="width:100%;margin-bottom:12px;">
-                    View Menu →
-                </button>
+
+                <button class="btn-primary" onclick="goToResults()" style="width:100%;margin-bottom:12px;">View Menu →</button>
                 <div class="allergy-skip">
                     <button onclick="goToResults()">Skip — I don't have any allergies</button>
                 </div>
             </div>
         </div>
- 
+
         <!-- Results -->
         <div class="screen results-screen" id="resultsScreen">
             <div style="max-width:1200px;margin:0 auto;">
@@ -547,7 +480,7 @@
                 <div class="menu-sections" id="menuSections"></div>
             </div>
         </div>
- 
+
         <!-- Order Summary -->
         <div class="screen order-summary-screen" id="orderSummaryScreen">
             <div class="summary-container">
@@ -564,7 +497,7 @@
             </div>
         </div>
     </div>
- 
+
     <script>
         const COMMON_ALLERGENS = [
             'nuts','peanuts','almonds','walnuts','cashews','pistachios','pecans','tree nuts',
@@ -574,27 +507,27 @@
             'fish','salmon','tuna','cod','halibut',
             'soy','soybean','eggs','egg','sesame','sulfites','sulphites'
         ];
- 
+
         let appState = {
             uploadedImages: [],
             menuData: [],
             favorites: new Set(),
             selectedAllergen: null,
             webcamStream: null,
-            userAllergens: new Set(),    // selected from chips
-            customAllergens: [],          // typed custom ones
+            userAllergens: new Set(),
+            customAllergens: [],
         };
- 
+
         function saveFavorites() {
             localStorage.setItem('menuFavorites', JSON.stringify(Array.from(appState.favorites)));
         }
- 
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if (id === 'resultsScreen') renderResults();
         }
- 
+
         function goHome() {
             showScreen('homeScreen');
             appState.uploadedImages = [];
@@ -603,14 +536,12 @@
             document.getElementById('imagePreview').classList.remove('show');
             document.getElementById('previewsGrid').innerHTML = '';
         }
- 
+
         function goToUpload() { showScreen('uploadScreen'); }
- 
         function goToResults() { showScreen('resultsScreen'); }
- 
         function goToOrderSummary() { showScreen('orderSummaryScreen'); renderOrderSummary(); }
- 
-        // accessibility
+
+        // accessibility controls
         document.getElementById('fontSizeControl').addEventListener('input', (e) => {
             const base = parseInt(e.target.value);
             const scale = base / 16;
@@ -622,12 +553,12 @@
             document.documentElement.style.setProperty('--font-size-3xl', Math.round(28 * scale) + 'px');
             document.getElementById('fontSizeLabel').textContent = `Text: ${base}px`;
         });
- 
+
         document.getElementById('darkModeToggle').addEventListener('change', e => document.body.classList.toggle('dark-mode', e.target.checked));
         document.getElementById('highContrastToggle').addEventListener('change', e => document.body.classList.toggle('high-contrast', e.target.checked));
         document.getElementById('dyslexiaToggle').addEventListener('change', e => document.body.classList.toggle('dyslexia-font', e.target.checked));
- 
-        // allergy chips
+
+        // allergy chip toggles
         document.querySelectorAll('.allergy-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const allergen = chip.dataset.allergen;
@@ -640,12 +571,11 @@
                 }
             });
         });
- 
-        // custom allergen input
+
         document.getElementById('customAllergyInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') addCustomAllergy();
         });
- 
+
         function addCustomAllergy() {
             const input = document.getElementById('customAllergyInput');
             const val = input.value.trim().toLowerCase();
@@ -656,12 +586,12 @@
             }
             input.value = '';
         }
- 
+
         function removeCustomAllergy(val) {
             appState.customAllergens = appState.customAllergens.filter(a => a !== val);
             renderCustomTags();
         }
- 
+
         function renderCustomTags() {
             const container = document.getElementById('customTags');
             container.innerHTML = '';
@@ -672,43 +602,37 @@
                 container.appendChild(tag);
             });
         }
- 
+
         function getAllUserAllergens() {
-            return new Set([
-                ...appState.userAllergens,
-                ...appState.customAllergens
-            ]);
+            return new Set([...appState.userAllergens, ...appState.customAllergens]);
         }
- 
+
         function itemMatchesUserAllergens(item) {
             const userAllergens = getAllUserAllergens();
             if (userAllergens.size === 0) return false;
             const itemAllergens = extractAllergensFromItem(item);
             const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
             for (const ua of userAllergens) {
-                if (itemAllergens.includes(ua)) return true;
-                if (itemText.includes(ua)) return true;
+                if (itemAllergens.includes(ua) || itemText.includes(ua)) return true;
             }
             return false;
         }
- 
+
         function getMatchingUserAllergens(item) {
             const userAllergens = getAllUserAllergens();
             const itemAllergens = extractAllergensFromItem(item);
             const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
             const matches = [];
             for (const ua of userAllergens) {
-                if (itemAllergens.includes(ua) || itemText.includes(ua)) {
-                    matches.push(ua);
-                }
+                if (itemAllergens.includes(ua) || itemText.includes(ua)) matches.push(ua);
             }
             return matches;
         }
- 
-        // upload
+
+        // upload handlers
         const uploadZone = document.getElementById('uploadZone');
         const imageInput = document.getElementById('imageInput');
- 
+
         uploadZone.addEventListener('click', () => imageInput.click());
         uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
         uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
@@ -718,13 +642,13 @@
             const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
             if (files.length) loadImages(files);
         });
- 
+
         imageInput.addEventListener('change', e => {
             const files = Array.from(e.target.files);
             if (files.length) loadImages(files);
             imageInput.value = '';
         });
- 
+
         function loadImages(files) {
             let loaded = 0;
             files.forEach(file => {
@@ -741,7 +665,7 @@
                 reader.readAsDataURL(file);
             });
         }
- 
+
         function renderPreviews() {
             const grid = document.getElementById('previewsGrid');
             grid.innerHTML = '';
@@ -753,7 +677,7 @@
             });
             document.getElementById('imagePreview').classList.add('show');
         }
- 
+
         function removeImage(idx) {
             appState.uploadedImages.splice(idx, 1);
             if (appState.uploadedImages.length === 0) {
@@ -762,7 +686,7 @@
                 renderPreviews();
             }
         }
- 
+
         // camera
         async function enableWebcam() {
             showScreen('uploadScreen');
@@ -780,7 +704,7 @@
             video.style.display = 'block';
             webcamButtons.style.display = 'flex';
         }
- 
+
         function stopWebcam() {
             if (appState.webcamStream) {
                 appState.webcamStream.getTracks().forEach(t => t.stop());
@@ -788,7 +712,7 @@
                 document.getElementById('webcamButtons').style.display = 'none';
             }
         }
- 
+
         function captureWebcam() {
             const video = document.getElementById('webcam');
             const canvas = document.createElement('canvas');
@@ -800,34 +724,58 @@
             appState.uploadedImages.push({ dataUrl, mediaType: 'image/jpeg', imageData: dataUrl.split(',')[1] });
             renderPreviews();
         }
- 
+
+        // main function — sends images to API, handles quality warning
         async function extractText() {
             if (appState.uploadedImages.length === 0) { alert('Please select at least one image first.'); return; }
- 
+
             const loadingState = document.getElementById('loadingState');
             const loadingText = document.getElementById('loadingText');
             loadingState.classList.add('show');
             loadingText.textContent = appState.uploadedImages.length > 1
                 ? `Reading ${appState.uploadedImages.length} photos... this may take a moment`
                 : 'Reading menu... this may take a moment';
- 
+
             try {
                 const images = appState.uploadedImages.map(img => ({ imageData: img.imageData, mediaType: img.mediaType }));
- 
+
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ images })
                 });
- 
+
                 if (!response.ok) {
                     const err = await response.json();
                     throw new Error(err.error || 'Server error');
                 }
- 
+
                 const data = await response.json();
-                const parsed = JSON.parse(data.result);
- 
+
+                // if image quality is bad, warn the user and let them decide
+                if (data.qualityWarning) {
+                    loadingState.classList.remove('show');
+                    const proceed = confirm(
+                        '⚠️ Image Quality Warning\n\n' +
+                        (data.reason || 'The image may be too blurry or unclear.') +
+                        '\n\nResults may be inaccurate.\n\nClick OK to continue anyway, or Cancel to upload a better photo.'
+                    );
+                    if (!proceed) return;
+
+                    // user chose to continue — re-fetch skipping the quality check
+                    loadingState.classList.add('show');
+                    const retryResponse = await fetch('/api/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ images, skipQualityCheck: true })
+                    });
+                    const retryData = await retryResponse.json();
+                    if (!retryResponse.ok) throw new Error(retryData.error || 'Server error');
+                    var parsed = JSON.parse(retryData.result);
+                } else {
+                    var parsed = JSON.parse(data.result);
+                }
+
                 appState.menuData = parsed.map(section => ({
                     ...section,
                     items: section.items.map(item => ({
@@ -835,15 +783,14 @@
                         id: (item.name || '').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').substring(0, 40) || Math.random().toString(36)
                     }))
                 }));
- 
+
                 appState.favorites = new Set();
                 saveFavorites();
- 
+
                 if (appState.menuData.length === 0) { alert('Could not find any menu items. Try a clearer photo.'); return; }
- 
-                // go to allergy screen first
+
                 showScreen('allergyScreen');
- 
+
             } catch (error) {
                 console.error(error);
                 alert('Error reading menu: ' + error.message);
@@ -851,7 +798,7 @@
                 loadingState.classList.remove('show');
             }
         }
- 
+
         function useDemoMenu() {
             appState.menuData = [
                 { section: 'Appetizers', items: [
@@ -877,12 +824,11 @@
             saveFavorites();
             showScreen('allergyScreen');
         }
- 
+
         function renderResults() {
             const menuSections = document.getElementById('menuSections');
             menuSections.innerHTML = '';
- 
-            // user allergy banner
+
             const banner = document.getElementById('userAllergyBanner');
             const userAllergens = getAllUserAllergens();
             if (userAllergens.size > 0) {
@@ -895,63 +841,61 @@
             } else {
                 banner.innerHTML = '';
             }
- 
+
             appState.menuData.forEach(section => {
                 const sectionDiv = document.createElement('div');
                 sectionDiv.className = 'section';
- 
+
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'section-title';
                 titleDiv.textContent = section.section;
                 sectionDiv.appendChild(titleDiv);
- 
+
                 const itemsDiv = document.createElement('div');
                 itemsDiv.className = 'menu-items';
- 
+
                 section.items.forEach(item => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'menu-item';
                     itemDiv.id = item.id;
- 
+
                     const matchingUserAllergens = getMatchingUserAllergens(item);
-                    const hasUserAllergyMatch = matchingUserAllergens.length > 0;
- 
-                    if (hasUserAllergyMatch) {
+                    if (matchingUserAllergens.length > 0) {
                         itemDiv.classList.add('user-allergy-warning');
                         const warnDiv = document.createElement('div');
                         warnDiv.className = 'warning-banner';
                         warnDiv.innerHTML = `⚠️ Contains: ${matchingUserAllergens.join(', ')}`;
                         itemDiv.appendChild(warnDiv);
                     }
- 
+
                     if (appState.selectedAllergen && hasAllergen(item, appState.selectedAllergen)) {
                         itemDiv.classList.add('highlighted');
                     }
- 
+
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'menu-item-header';
- 
+
                     const nameDiv = document.createElement('div');
                     nameDiv.className = 'menu-item-name';
                     nameDiv.textContent = item.name;
                     headerDiv.appendChild(nameDiv);
- 
+
                     if (item.price) {
                         const priceDiv = document.createElement('div');
                         priceDiv.className = 'menu-item-price';
                         priceDiv.textContent = item.price;
                         headerDiv.appendChild(priceDiv);
                     }
- 
+
                     itemDiv.appendChild(headerDiv);
- 
+
                     if (item.description) {
                         const descDiv = document.createElement('div');
                         descDiv.className = 'menu-item-description';
                         descDiv.textContent = item.description;
                         itemDiv.appendChild(descDiv);
                     }
- 
+
                     const allergens = extractAllergensFromItem(item);
                     if (allergens.length > 0) {
                         const allergenDiv = document.createElement('div');
@@ -966,7 +910,7 @@
                         });
                         itemDiv.appendChild(allergenDiv);
                     }
- 
+
                     const controlsDiv = document.createElement('div');
                     controlsDiv.className = 'menu-item-controls';
                     const favBtn = document.createElement('button');
@@ -976,34 +920,33 @@
                     favBtn.addEventListener('click', () => toggleFavorite(item, favBtn));
                     controlsDiv.appendChild(favBtn);
                     itemDiv.appendChild(controlsDiv);
- 
                     itemsDiv.appendChild(itemDiv);
                 });
- 
+
                 sectionDiv.appendChild(itemsDiv);
                 menuSections.appendChild(sectionDiv);
             });
- 
+
             renderAllergenFilter();
         }
- 
+
         function extractAllergensFromItem(item) {
             if (item.allergens && Array.isArray(item.allergens)) return item.allergens.map(a => a.toLowerCase());
             const text = (item.name + ' ' + (item.description || '')).toLowerCase();
             return COMMON_ALLERGENS.filter(a => text.includes(a));
         }
- 
+
         function hasAllergen(item, allergen) {
             return extractAllergensFromItem(item).includes(allergen);
         }
- 
+
         function renderAllergenFilter() {
             const allAllergens = new Set();
             appState.menuData.forEach(s => s.items.forEach(item => extractAllergensFromItem(item).forEach(a => allAllergens.add(a))));
- 
+
             const filterDiv = document.getElementById('allergenFilter');
             filterDiv.innerHTML = '<strong>Filter by allergen:</strong> ';
- 
+
             allAllergens.forEach(allergen => {
                 const badge = document.createElement('button');
                 badge.className = 'allergen-badge' + (appState.selectedAllergen === allergen ? ' active' : '');
@@ -1011,7 +954,7 @@
                 badge.addEventListener('click', () => { appState.selectedAllergen = appState.selectedAllergen === allergen ? null : allergen; renderResults(); });
                 filterDiv.appendChild(badge);
             });
- 
+
             if (appState.selectedAllergen) {
                 const clearBtn = document.createElement('button');
                 clearBtn.className = 'allergen-badge';
@@ -1020,7 +963,7 @@
                 filterDiv.appendChild(clearBtn);
             }
         }
- 
+
         function toggleFavorite(item, button) {
             if (appState.favorites.has(item.id)) {
                 appState.favorites.delete(item.id);
@@ -1033,60 +976,60 @@
             }
             saveFavorites();
         }
- 
+
         function renderOrderSummary() {
             const content = document.getElementById('orderSummaryContent');
             const favoriteItems = [];
             appState.menuData.forEach(section => section.items.forEach(item => {
                 if (appState.favorites.has(item.id)) favoriteItems.push({ ...item, section: section.section });
             }));
- 
+
             const existingTotal = document.getElementById('orderTotal');
             if (existingTotal) existingTotal.remove();
- 
+
             if (favoriteItems.length === 0) {
                 content.innerHTML = '<div class="empty-order">No items selected yet. Go back and tap ❤️ on items to add them.</div>';
                 return;
             }
- 
+
             content.innerHTML = '';
             let total = 0;
- 
+
             favoriteItems.forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'summary-item';
- 
+
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'summary-item-name';
                 const allergyWarning = itemMatchesUserAllergens(item) ? ' ⚠️' : '';
                 nameDiv.innerHTML = `<strong>${item.name}${allergyWarning}</strong><br><small>${item.section}</small>`;
                 itemDiv.appendChild(nameDiv);
- 
+
                 const priceDiv = document.createElement('div');
                 priceDiv.className = 'summary-item-price';
                 priceDiv.textContent = item.price || '?';
                 itemDiv.appendChild(priceDiv);
- 
+
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.textContent = '✕';
                 removeBtn.addEventListener('click', () => { appState.favorites.delete(item.id); saveFavorites(); renderOrderSummary(); });
                 itemDiv.appendChild(removeBtn);
                 content.appendChild(itemDiv);
- 
+
                 if (item.price) {
                     const match = item.price.match(/\d+(\.\d{2})?/);
                     if (match) total += parseFloat(match[0]);
                 }
             });
- 
+
             const totalDiv = document.createElement('div');
             totalDiv.id = 'orderTotal';
             totalDiv.className = 'summary-total';
             totalDiv.innerHTML = `<strong>Estimated Total: $${total.toFixed(2)}</strong>`;
             content.parentElement.insertBefore(totalDiv, content.nextSibling);
         }
- 
+
         function speakOrder() {
             const items = [];
             appState.menuData.forEach(s => s.items.forEach(item => { if (appState.favorites.has(item.id)) items.push(item.name); }));
@@ -1095,7 +1038,7 @@
             utterance.rate = 0.9;
             speechSynthesis.speak(utterance);
         }
- 
+
         function copyOrder() {
             const items = [];
             appState.menuData.forEach(s => s.items.forEach(item => { if (appState.favorites.has(item.id)) items.push(item.name); }));
@@ -1104,4 +1047,3 @@
     </script>
 </body>
 </html>
- 
