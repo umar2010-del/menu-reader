@@ -3,7 +3,7 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
  
-    const { images } = req.body;
+    const { images, skipQualityCheck } = req.body;
  
     if (!images || !Array.isArray(images) || images.length === 0) {
         return res.status(400).json({ error: 'Missing images array' });
@@ -13,47 +13,49 @@ module.exports = async function handler(req, res) {
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'OPENROUTER_API_KEY is not set' });
  
-        // Step 1: quick quality check on the first image
-        const qualityPrompt = `Look at this image. Is it clear enough to read menu text from it?
+        // Step 1: quality check (skipped only if user already confirmed they want to continue)
+        if (!skipQualityCheck) {
+            const qualityPrompt = `Look at this image. Is it clear enough to read menu text from it?
 Reply with ONLY a JSON object in this exact format, nothing else:
 {"readable": true, "reason": ""}
 or
 {"readable": false, "reason": "One sentence explaining why e.g. too blurry, too dark, not a menu"}`;
  
-        const qualityContent = [
-            { type: 'image_url', image_url: { url: `data:${images[0].mediaType};base64,${images[0].imageData}` } },
-            { type: 'text', text: qualityPrompt }
-        ];
+            const qualityContent = [
+                { type: 'image_url', image_url: { url: `data:${images[0].mediaType};base64,${images[0].imageData}` } },
+                { type: 'text', text: qualityPrompt }
+            ];
  
-        const qualityResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': 'https://menu-reader.vercel.app',
-                'X-Title': 'Menu Reader'
-            },
-            body: JSON.stringify({
-                model: 'openrouter/auto',
-                messages: [{ role: 'user', content: qualityContent }],
-                temperature: 0.1
-            })
-        });
+            const qualityResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': 'https://menu-reader.vercel.app',
+                    'X-Title': 'Menu Reader'
+                },
+                body: JSON.stringify({
+                    model: 'openrouter/auto',
+                    messages: [{ role: 'user', content: qualityContent }],
+                    temperature: 0.1
+                })
+            });
  
-        if (qualityResponse.ok) {
-            const qualityData = await qualityResponse.json();
-            const qualityRaw = qualityData.choices?.[0]?.message?.content || '';
-            try {
-                let qualityCleaned = qualityRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
-                const qualityResult = JSON.parse(qualityCleaned);
-                if (qualityResult.readable === false) {
-                    return res.status(200).json({
-                        qualityWarning: true,
-                        reason: qualityResult.reason || 'Image may be too blurry or unclear to read accurately.'
-                    });
+            if (qualityResponse.ok) {
+                const qualityData = await qualityResponse.json();
+                const qualityRaw = qualityData.choices?.[0]?.message?.content || '';
+                try {
+                    let qualityCleaned = qualityRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    const qualityResult = JSON.parse(qualityCleaned);
+                    if (qualityResult.readable === false) {
+                        return res.status(200).json({
+                            qualityWarning: true,
+                            reason: qualityResult.reason || 'Image may be too blurry or unclear to read accurately.'
+                        });
+                    }
+                } catch (e) {
+                    // quality check parse failed, continue to main analysis
                 }
-            } catch (e) {
-                // if quality check parse fails, just continue to main analysis
             }
         }
  
@@ -147,3 +149,4 @@ OTHER RULES:
         res.status(500).json({ error: 'Server error: ' + err.message });
     }
 }
+ 
