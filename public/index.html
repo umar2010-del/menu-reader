@@ -927,7 +927,7 @@ let mapInitialized=false;let leafletMap=null;
 function initPartnerMap(){
   if(mapInitialized) return;
   mapInitialized=true;
-  leafletMap=L.map('partnerMap').setView([35.5,−79.0],7);
+  leafletMap=L.map('partnerMap').setView([35.5,-79.0],7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(leafletMap);
   PARTNERS.forEach(p=>{
     const color=p.status==='new'?'#16a34a':'#2563eb';
