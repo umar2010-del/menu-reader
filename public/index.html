@@ -1,1060 +1,1087 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Reader</title>
-    <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MenuSense — Accessible Menu Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --blue:#2563eb;--blue-dark:#1d4ed8;--blue-light:#eff6ff;
+  --orange:#ea580c;--green:#16a34a;--yellow:#d97706;--red:#dc2626;
+  --teal:#0d9488;--purple:#7c3aed;
+  --text:#0f172a;--muted:#64748b;--bg:#f8fafc;--white:#ffffff;
+  --border:#e2e8f0;--shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 6px rgba(0,0,0,0.07),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:0 10px 15px rgba(0,0,0,0.08),0 4px 6px rgba(0,0,0,0.04);
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --font-size-base:16px;--font-size-sm:14px;--font-size-lg:18px;--font-size-xl:20px;--font-size-2xl:24px;--font-size-3xl:32px;
+  --nav-width:240px;
+}
+body.dark-mode{--white:#1e293b;--bg:#0f172a;--text:#f1f5f9;--muted:#94a3b8;--border:#334155;--blue-light:#1e3a5f;}
+body.high-contrast{--white:#000;--bg:#111;--text:#ff0;--muted:#ccc;--border:#ff0;}
+body.dyslexia-font{font-family:'OpenDyslexic',sans-serif!important;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:var(--font-size-base);transition:background .3s,color .3s;min-height:100vh;}
 
-        :root {
-            --blue: #2563eb;
-            --blue-dark: #1d4ed8;
-            --orange: #ea580c;
-            --green: #16a34a;
-            --yellow: #d97706;
-            --red: #dc2626;
-            --text: #111827;
-            --muted: #6b7280;
-            --bg: #f3f4f6;
-            --white: #ffffff;
-            --border: #d1d5db;
-            --font-size-base: 16px;
-            --font-size-sm: 14px;
-            --font-size-lg: 18px;
-            --font-size-xl: 20px;
-            --font-size-2xl: 24px;
-            --font-size-3xl: 28px;
-        }
+/* ── NAV ── */
+.sidenav{position:fixed;left:0;top:0;bottom:0;width:var(--nav-width);background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .3s;}
+.sidenav-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border);}
+.sidenav-logo .logo-text{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--blue);}
+.sidenav-logo .logo-sub{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.5px;text-transform:uppercase;}
+.sidenav-links{flex:1;padding:16px 12px;overflow-y:auto;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:4px;transition:all .2s;border:none;background:none;width:100%;text-align:left;}
+.nav-link:hover,.nav-link.active{background:var(--blue-light);color:var(--blue);}
+.nav-link .nav-icon{font-size:18px;width:22px;text-align:center;}
+.sidenav-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.accessibility-toggle-group{display:flex;flex-direction:column;gap:8px;}
+.acc-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.acc-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;}
+.acc-check input{accent-color:var(--blue);width:16px;height:16px;}
+.acc-slider-row{display:flex;align-items:center;gap:8px;font-size:13px;}
+.acc-slider-row input[type=range]{flex:1;accent-color:var(--blue);}
 
-        body.high-contrast { --white: #000; --bg: #111; --text: #ff0; --muted: #ccc; --border: #ffff00; }
-        body.dark-mode { --white: #1e293b; --bg: #0f172a; --text: #f1f5f9; --muted: #94a3b8; }
-        body.dyslexia-font { font-family: 'OpenDyslexic', sans-serif; }
+.main-content{margin-left:var(--nav-width);min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;}
+.topbar-title{font-size:16px;font-weight:600;color:var(--text);}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;font-size:22px;color:var(--text);}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            font-size: var(--font-size-base);
-            transition: background-color 0.3s, color 0.3s;
-        }
+/* ── SCREENS ── */
+.screen{display:none;padding:32px 28px;max-width:1200px;margin:0 auto;}
+.screen.active{display:block;}
 
-        .accessibility-bar {
-            background: var(--white);
-            border-bottom: 2px solid var(--border);
-            padding: 12px 20px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--blue);color:#fff;}.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px);}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border);}
+.btn-danger{background:var(--red);color:#fff;}.btn-danger:hover{background:#b91c1c;}
+.btn-success{background:var(--green);color:#fff;}.btn-success:hover{background:#059669;}
+.btn-lg{padding:14px 28px;font-size:16px;border-radius:var(--radius);}
+.btn-sm{padding:7px 14px;font-size:12px;}
 
-        .accessibility-control label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-        }
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.card-subtitle{font-size:13px;color:var(--muted);margin-bottom:20px;}
 
-        .accessibility-control input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); }
-        .accessibility-control input[type="range"] { width: 120px; accent-color: var(--blue); }
+/* ── HOME ── */
+.hero{background:linear-gradient(135deg,#1d4ed8 0%,#0d9488 100%);color:white;border-radius:var(--radius-lg);padding:56px 48px;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);backdrop-filter:blur(6px);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:20px;}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;line-height:1.15;margin-bottom:16px;}
+.hero p{font-size:17px;opacity:.9;max-width:520px;line-height:1.6;}
+.hero-buttons{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;}
+.hero-btn{padding:14px 26px;border-radius:var(--radius-sm);font-weight:600;font-size:15px;border:none;cursor:pointer;transition:all .2s;}
+.hero-btn-primary{background:#fff;color:var(--blue);}.hero-btn-primary:hover{background:#f1f5f9;transform:translateY(-2px);}
+.hero-btn-outline{background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.4);}.hero-btn-outline:hover{background:rgba(255,255,255,.25);}
 
-        .screen { display: none; }
-        .screen.active { display: block; }
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--blue);}
+.stat-label{font-size:13px;color:var(--muted);font-weight:500;margin-top:2px;}
 
-        .home-screen { min-height: 100vh; padding: 40px 20px; background: #eff6ff; }
-        .home-content { text-align: center; margin-bottom: 40px; }
-        .app-title { font-size: var(--font-size-3xl); font-weight: 700; color: var(--blue-dark); margin-bottom: 12px; }
-        .app-tagline { font-size: var(--font-size-lg); color: var(--muted); }
-        .home-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 32px 0; }
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:32px;}
+.feature-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:all .2s;}
+.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.feature-icon{font-size:28px;margin-bottom:12px;}
+.feature-title{font-weight:700;font-size:15px;margin-bottom:6px;}
+.feature-desc{font-size:13px;color:var(--muted);line-height:1.5;}
 
-        .btn-primary, .btn-secondary {
-            padding: 16px 32px;
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: var(--blue); color: white; }
-        .btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
-        .btn-secondary { background: var(--orange); color: white; }
-        .btn-secondary:hover { background: #c2410c; transform: translateY(-2px); }
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;background:var(--white);transition:all .2s;margin-bottom:20px;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:var(--blue-light);}
+.upload-icon{font-size:48px;margin-bottom:16px;}
+.upload-title{font-size:17px;font-weight:600;margin-bottom:6px;}
+.upload-hint{font-size:13px;color:var(--muted);}
+#imageInput{display:none;}
+.previews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px;}
+.preview-thumb{position:relative;border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:1;background:var(--bg);border:1px solid var(--border);}
+.preview-thumb img{width:100%;height:100%;object-fit:cover;}
+.remove-thumb{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#webcam{width:100%;border-radius:var(--radius-sm);margin-bottom:12px;display:none;}
+.divider{text-align:center;margin:20px 0;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
-        .how-it-works { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
-        .step { background: var(--white); padding: 24px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
-        .step-number { font-size: var(--font-size-2xl); font-weight: 700; color: var(--blue); margin-bottom: 8px; }
-        .step-title { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 6px; }
-        .step-description { font-size: var(--font-size-sm); color: var(--muted); }
+/* ── LOADING ── */
+.loading{display:none;text-align:center;padding:48px 24px;}
+.loading.show{display:block;}
+.spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-steps{display:flex;flex-direction:column;gap:8px;max-width:320px;margin:20px auto 0;text-align:left;}
+.loading-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 12px;border-radius:var(--radius-sm);background:var(--white);}
+.loading-step.done{color:var(--green);}.loading-step.active{color:var(--blue);font-weight:600;}
 
-        .upload-screen, .results-screen, .order-summary-screen, .allergy-screen { min-height: 100vh; padding: 40px 20px; }
-        .upload-container, .summary-container, .allergy-container { max-width: 600px; margin: 0 auto; }
+/* ── ALLERGY ── */
+.allergy-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.allergy-chip{padding:9px 16px;border-radius:20px;border:2px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;}
+.allergy-chip:hover{border-color:var(--red);color:var(--red);}
+.allergy-chip.selected{background:var(--red);border-color:var(--red);color:#fff;}
+.custom-allergy-row{display:flex;gap:10px;margin-top:16px;}
+.custom-allergy-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border .2s;}
+.custom-allergy-input:focus{border-color:var(--blue);}
+.custom-tag{background:var(--orange);color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;}
+.custom-tag button{background:none;border:none;color:#fff;cursor:pointer;font-size:14px;line-height:1;}
 
-        .back-btn {
-            background: var(--white);
-            color: var(--blue);
-            border: 2px solid var(--blue);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-bottom: 24px;
-            transition: all 0.2s;
-        }
-        .back-btn:hover { background: var(--blue); color: white; }
+/* ── RESULTS ── */
+.results-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.allergen-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+.allergen-badge{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.allergen-badge:hover{border-color:var(--blue);color:var(--blue);}
+.allergen-badge.active{background:var(--red);border-color:var(--red);color:#fff;}
+.user-allergy-banner{background:#fef2f2;border:2px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.menu-section-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px;}
+.section-header{background:linear-gradient(90deg,var(--blue) 0%,var(--teal) 100%);color:#fff;padding:14px 20px;font-size:15px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+.menu-items{padding:16px;display:grid;gap:12px;}
+.menu-item{padding:16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);transition:all .2s;}
+.menu-item:hover{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.07);}
+.menu-item.user-allergy-warning{background:#fef2f2;border-color:var(--red);}
+.warning-banner{background:var(--red);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.menu-item-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;}
+.menu-item-name{font-size:15px;font-weight:600;flex:1;}
+.menu-item-price{font-size:15px;font-weight:700;color:var(--blue);white-space:nowrap;}
+.menu-item-description{font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+.menu-item-allergens{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.allergen-tag{background:var(--yellow);color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+.allergen-tag.user-match{background:var(--red);}
+.favorite-btn{background:none;border:none;font-size:20px;cursor:pointer;transition:transform .2s;padding:4px;}
+.favorite-btn:hover{transform:scale(1.2);}
 
-        .screen-title { font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: 6px; }
-        .screen-subtitle { font-size: var(--font-size-sm); color: var(--muted); margin-bottom: 28px; }
+/* ── ORDER SUMMARY ── */
+.summary-item{padding:14px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.summary-item:last-child{border:none;}
+.summary-total{text-align:right;padding:14px 0;font-size:17px;font-weight:700;border-top:2px solid var(--border);}
+.summary-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px;}
 
-        .upload-zone {
-            border: 3px dashed var(--border);
-            border-radius: 10px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            background: var(--white);
-            margin-bottom: 20px;
-            transition: all 0.2s;
-        }
-        .upload-zone.dragover { border-color: var(--blue); background: rgba(37,99,235,0.04); }
-        .upload-zone-text { font-size: var(--font-size-lg); font-weight: 500; margin-bottom: 8px; }
-        .upload-zone-hint { font-size: var(--font-size-sm); color: var(--muted); }
-        #imageInput { display: none; }
+/* ── PARTNERS MAP ── */
+#partnerMap{height:460px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+.partner-table{width:100%;border-collapse:collapse;font-size:14px;}
+.partner-table th{text-align:left;padding:10px 14px;background:var(--blue-light);color:var(--blue);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px;}
+.partner-table td{padding:11px 14px;border-bottom:1px solid var(--border);}
+.partner-table tr:hover td{background:var(--blue-light);}
+.user-bar{height:8px;border-radius:4px;background:var(--blue);display:inline-block;min-width:4px;}
+.badge-new{background:#ecfdf5;color:var(--green);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #bbf7d0;}
+.badge-active{background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #bfdbfe;}
 
-        .divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: var(--font-size-sm); }
+/* ── SCHOOLS ── */
+.school-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow);transition:all .2s;}
+.school-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.school-icon{width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.school-info{flex:1;}
+.school-name{font-weight:700;font-size:15px;margin-bottom:3px;}
+.school-meta{font-size:13px;color:var(--muted);}
+.school-stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;}
+.school-stat{font-size:12px;font-weight:600;}
+.school-stat span{color:var(--muted);font-weight:400;}
+.progress-bar-wrap{background:var(--border);border-radius:4px;height:6px;flex:1;min-width:80px;margin-top:4px;}
+.progress-bar-fill{height:6px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .8s;}
 
-        .previews-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .preview-thumb {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 1;
-            background: var(--bg);
-            border: 1px solid var(--border);
-        }
-        .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-thumb .remove-thumb {
-            position: absolute;
-            top: 4px; right: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 22px; height: 22px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* ── CHATBOT ── */
+.chat-window{position:fixed;bottom:24px;right:24px;width:370px;max-height:560px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;z-index:999;transition:all .3s;overflow:hidden;}
+.chat-window.hidden{transform:translateY(20px);opacity:0;pointer-events:none;}
+.chat-header{background:linear-gradient(90deg,var(--blue),var(--teal));color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+.chat-header-title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+.chat-online-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.chat-close{background:none;border:none;color:#fff;cursor:pointer;font-size:18px;opacity:.8;}
+.chat-close:hover{opacity:1;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;max-height:380px;}
+.chat-msg{max-width:82%;padding:10px 14px;border-radius:var(--radius-sm);font-size:14px;line-height:1.5;}
+.chat-msg.bot{background:var(--blue-light);color:var(--text);align-self:flex-start;border-radius:4px 14px 14px 14px;}
+.chat-msg.user{background:var(--blue);color:#fff;align-self:flex-end;border-radius:14px 14px 4px 14px;}
+.chat-input-row{display:flex;gap:10px;padding:14px;border-top:1px solid var(--border);}
+.chat-input{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border .2s;}
+.chat-input:focus{border-color:var(--blue);}
+.chat-send{background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:9px 14px;cursor:pointer;font-size:14px;font-weight:600;transition:background .2s;}
+.chat-send:hover{background:var(--blue-dark);}
+.chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:var(--shadow-lg);z-index:998;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.chat-fab:hover{transform:scale(1.08);}
+.chat-typing{display:flex;gap:4px;align-items:center;padding:10px 14px;}
+.chat-typing span{width:7px;height:7px;background:var(--muted);border-radius:50%;animation:bounce .8s infinite;}
+.chat-typing span:nth-child(2){animation-delay:.15s;}
+.chat-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.quick-replies{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;}
+.quick-reply{padding:6px 12px;border:1.5px solid var(--blue);color:var(--blue);background:var(--blue-light);border-radius:20px;font-size:12px;cursor:pointer;transition:all .2s;}
+.quick-reply:hover{background:var(--blue);color:#fff;}
 
-        .image-preview { display: none; background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .image-preview.show { display: block; }
+/* ── ANALYTICS ── */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.analytics-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+.analytics-num{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;}
+.analytics-label{font-size:13px;color:var(--muted);font-weight:500;margin-top:4px;}
+.analytics-change{font-size:12px;font-weight:600;margin-top:6px;}
+.analytics-change.up{color:var(--green);}.analytics-change.down{color:var(--red);}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:8px 0;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar-fill{background:linear-gradient(180deg,var(--blue),var(--teal));border-radius:4px 4px 0 0;width:100%;transition:height .8s;}
+.bar-label{font-size:10px;color:var(--muted);font-weight:600;}
 
-        .webcam-section { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        #webcam { width: 100%; border-radius: 8px; margin-bottom: 16px; display: none; }
-        .webcam-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* ── MOBILE ── */
+@media(max-width:768px){
+  :root{--nav-width:0px;}
+  .sidenav{transform:translateX(-240px);}
+  .sidenav.open{transform:translateX(0);--nav-width:240px;}
+  .main-content{margin-left:0;}
+  .mobile-menu-btn{display:block;}
+  .hero{padding:32px 24px;}.hero h1{font-size:28px;}
+  .chat-window{width:calc(100vw - 32px);right:16px;bottom:80px;}
+  .screen{padding:20px 16px;}
+  .topbar{padding:12px 16px;}
+}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;}
+.nav-overlay.open{display:block;}
 
-        .btn-small {
-            padding: 10px 20px;
-            font-size: var(--font-size-sm);
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-small.primary { background: var(--blue); color: white; }
-        .btn-small.primary:hover { background: var(--blue-dark); }
-        .btn-small.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-        .btn-small.secondary:hover { background: var(--border); }
+/* ── MISC ── */
+.section-heading{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.section-subheading{font-size:14px;color:var(--muted);margin-bottom:24px;}
+.search-box{padding:10px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border .2s;width:100%;max-width:320px;}
+.search-box:focus{border-color:var(--blue);}
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted);}
+.empty-state-icon{font-size:48px;margin-bottom:16px;}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.tag-blue{background:var(--blue-light);color:var(--blue);}
+.tag-green{background:#ecfdf5;color:var(--green);}
+.tag-orange{background:#fff7ed;color:var(--orange);}
 
-        .loading { display: none; text-align: center; padding: 40px 20px; }
-        .loading.show { display: block; }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid var(--border);
-            border-top-color: var(--blue);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .allergy-card {
-            background: var(--white);
-            border-radius: 10px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-        }
-        .allergy-card h3 { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 16px; }
-        .allergy-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
-        .allergy-chip {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid var(--border);
-            background: var(--white);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            font-weight: 500;
-            transition: all 0.2s;
-            user-select: none;
-        }
-        .allergy-chip:hover { border-color: var(--red); color: var(--red); }
-        .allergy-chip.selected { background: var(--red); border-color: var(--red); color: white; }
-
-        .custom-allergy-row { display: flex; gap: 10px; margin-top: 16px; }
-        .custom-allergy-input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: var(--font-size-sm);
-            background: var(--bg);
-            color: var(--text);
-            outline: none;
-        }
-        .custom-allergy-input:focus { border-color: var(--blue); }
-        .custom-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        .custom-tag {
-            background: var(--orange);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: var(--font-size-sm);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .custom-tag button { background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
-        .allergy-skip { text-align: center; margin-top: 12px; }
-        .allergy-skip button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: var(--font-size-sm); text-decoration: underline; }
-
-        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-        .allergen-filter { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
-        .allergen-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 2px solid var(--border);
-            background: var(--white);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .allergen-badge:hover { border-color: var(--blue); color: var(--blue); }
-        .allergen-badge.active { background: var(--red); border-color: var(--red); color: white; }
-
-        .user-allergy-banner {
-            background: #fef2f2;
-            border: 2px solid var(--red);
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .user-allergy-banner-text { font-size: var(--font-size-sm); color: var(--red); font-weight: 600; }
-        .user-allergy-banner button { background: none; border: none; color: var(--red); cursor: pointer; font-size: var(--font-size-sm); text-decoration: underline; }
-
-        .menu-sections { display: grid; gap: 32px; }
-        .section { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
-        .section-title { background: var(--blue); color: white; padding: 16px 20px; font-size: var(--font-size-lg); font-weight: 700; }
-        .menu-items { padding: 20px; display: grid; gap: 16px; }
-
-        .menu-item {
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-            transition: all 0.2s;
-        }
-        .menu-item:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        .menu-item.highlighted { background: rgba(220,38,38,0.08); border-color: var(--red); }
-        .menu-item.user-allergy-warning { background: #fef2f2; border: 2px solid var(--red); }
-
-        .warning-banner {
-            background: var(--red);
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: var(--font-size-sm);
-            font-weight: 600;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .menu-item-header { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; }
-        .menu-item-name { font-size: var(--font-size-lg); font-weight: 600; flex: 1; }
-        .menu-item-price { font-size: var(--font-size-lg); font-weight: 700; color: var(--blue); white-space: nowrap; }
-        .menu-item-description { font-size: var(--font-size-sm); color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
-        .menu-item-allergens { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-        .allergen-tag { background: var(--yellow); color: white; padding: 4px 8px; border-radius: 4px; font-size: var(--font-size-sm); font-weight: 500; }
-        .allergen-tag.highlighted { background: var(--red); }
-        .allergen-tag.user-match { background: var(--red); font-weight: 700; }
-
-        .menu-item-controls { display: flex; gap: 8px; }
-        .favorite-btn { background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s; }
-        .favorite-btn:hover { transform: scale(1.2); }
-
-        .summary-items { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
-        .summary-item { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-        .summary-item:last-child { border-bottom: none; }
-        .summary-item-name { flex: 1; font-weight: 500; }
-        .summary-item-price { font-weight: 700; color: var(--blue); white-space: nowrap; }
-        .remove-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; transition: transform 0.2s; }
-        .remove-btn:hover { transform: scale(1.2); }
-        .summary-total { text-align: right; padding: 16px 20px; border-top: 2px solid var(--border); font-size: var(--font-size-lg); font-weight: 700; }
-        .summary-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-        .btn-action { padding: 12px 24px; font-size: var(--font-size-sm); font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .btn-action.primary { background: var(--green); color: white; }
-        .btn-action.primary:hover { background: #059669; }
-        .btn-action.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-        .btn-action.secondary:hover { background: var(--border); }
-        .empty-order { text-align: center; padding: 40px; color: var(--muted); }
-
-        @media (max-width: 768px) {
-            .app-title { font-size: var(--font-size-2xl); }
-            .how-it-works { grid-template-columns: 1fr; }
-            .results-header { flex-direction: column; align-items: flex-start; }
-        }
-    </style>
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
 </head>
 <body>
-    <div style="max-width:1200px;margin:0 auto;">
 
-        <div class="accessibility-bar">
-            <button onclick="goHome()" style="background:var(--blue);color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:var(--font-size-sm);">🏠 Home</button>
-            <div class="accessibility-control">
-                <label>
-                    <input type="range" id="fontSizeControl" min="12" max="24" value="16" step="1">
-                    <span id="fontSizeLabel">Text: 16px</span>
-                </label>
-            </div>
-            <div class="accessibility-control">
-                <label><input type="checkbox" id="darkModeToggle"> Dark Mode</label>
-            </div>
-            <div class="accessibility-control">
-                <label><input type="checkbox" id="highContrastToggle"> High Contrast</label>
-            </div>
-            <div class="accessibility-control">
-                <label><input type="checkbox" id="dyslexiaToggle"> Dyslexia Font</label>
-            </div>
-        </div>
+<!-- ── SIDE NAV ── -->
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
+<nav class="sidenav" id="sidenav">
+  <div class="sidenav-logo">
+    <div class="logo-text">🍽️ MenuSense</div>
+    <div class="logo-sub"></div>
+  </div>
+  <div class="sidenav-links">
+    <button class="nav-link active" onclick="goScreen('homeScreen',this)"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-link" onclick="goScreen('uploadScreen',this)"><span class="nav-icon">📷</span>Scan Menu</button>
+    <button class="nav-link" onclick="goScreen('resultsScreen',this)"><span class="nav-icon">🍴</span>View Menu</button>
+    <button class="nav-link" onclick="goScreen('orderScreen',this)"><span class="nav-icon">🛒</span>My Order</button>
+    <button class="nav-link" onclick="goScreen('partnersScreen',this)"><span class="nav-icon">📍</span>Partners Map</button>
+    <button class="nav-link" onclick="goScreen('schoolsScreen',this)"><span class="nav-icon">🏫</span>Schools</button>
+    <button class="nav-link" onclick="goScreen('analyticsScreen',this)"><span class="nav-icon">📊</span>Analytics</button>
+    <button class="nav-link" onclick="goScreen('allergyScreen',this)"><span class="nav-icon">🛡️</span>My Allergies</button>
+  </div>
+  <div class="sidenav-bottom">
+    <div class="acc-label">Accessibility</div>
+    <div class="accessibility-toggle-group">
+      <div class="acc-slider-row">
+        <span style="font-size:12px">A</span>
+        <input type="range" id="fontSizeControl" min="12" max="24" value="16" step="1">
+        <span style="font-size:16px">A</span>
+      </div>
+      <label class="acc-check"><input type="checkbox" id="darkModeToggle"> Dark Mode</label>
+      <label class="acc-check"><input type="checkbox" id="highContrastToggle"> High Contrast</label>
+      <label class="acc-check"><input type="checkbox" id="dyslexiaToggle"> Dyslexia Font</label>
+    </div>
+  </div>
+</nav>
 
-        <!-- Home -->
-        <div class="screen active home-screen" id="homeScreen">
-            <div class="home-content">
-                <h1 class="app-title">🍽️ Menu Reader</h1>
-                <p class="app-tagline">Never miss a word on the menu</p>
-            </div>
-            <div class="home-buttons">
-                <button class="btn-primary" onclick="goToUpload()">📤 Upload Photos</button>
-                <button class="btn-secondary" onclick="enableWebcam()">📷 Take a Photo</button>
-            </div>
-            <div class="how-it-works">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-title">Capture Menu</div>
-                    <div class="step-description">Upload one or multiple menu photos at once</div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-title">Set Allergies</div>
-                    <div class="step-description">Tell us what you're allergic to and we'll flag it</div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-title">Order Safely</div>
-                    <div class="step-description">Dangerous items are highlighted in red automatically</div>
-                </div>
-            </div>
-        </div>
+<!-- ── MAIN ── -->
+<div class="main-content">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="mobile-menu-btn" onclick="openNav()">☰</button>
+      <span class="topbar-title" id="topbarTitle">Dashboard</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm btn-primary" onclick="goScreen('uploadScreen')">+ Scan Menu</button>
+    </div>
+  </div>
 
-        <!-- Upload -->
-        <div class="screen upload-screen" id="uploadScreen">
-            <div class="upload-container">
-                <button class="back-btn" onclick="goHome()">← Back</button>
-                <h2 class="screen-title">Upload Menu</h2>
-                <p class="screen-subtitle">Select one or multiple photos at once</p>
-
-                <div class="upload-zone" id="uploadZone">
-                    <div class="upload-zone-text">📸 Drop your menu photos here</div>
-                    <div class="upload-zone-hint">or click to select images (you can pick multiple)</div>
-                </div>
-                <input type="file" id="imageInput" accept="image/*" multiple>
-
-                <div class="divider">— OR —</div>
-
-                <div class="webcam-section">
-                    <video id="webcam" autoplay playsinline></video>
-                    <div class="webcam-buttons" id="webcamButtons" style="display:none;">
-                        <button class="btn-small secondary" onclick="stopWebcam()">❌ Stop Camera</button>
-                        <button class="btn-small primary" onclick="captureWebcam()">📸 Capture</button>
-                    </div>
-                </div>
-
-                <div class="image-preview" id="imagePreview">
-                    <div class="previews-grid" id="previewsGrid"></div>
-                    <button class="btn-small secondary" onclick="document.getElementById('imageInput').click()" style="margin-bottom:12px;">+ Add More Photos</button>
-                    <button class="btn-primary" onclick="extractText()" style="width:100%;">✨ Extract Text</button>
-                </div>
-
-                <div style="text-align:center;margin-top:20px;color:var(--muted);">
-                    <small>Or try a demo:</small><br>
-                    <button class="btn-small secondary" onclick="useDemoMenu()" style="margin-top:8px;">🍴 Load Demo Menu</button>
-                </div>
-
-                <div class="loading" id="loadingState">
-                    <div class="spinner"></div>
-                    <p id="loadingText">Reading menu... this may take a moment</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Allergy Selection -->
-        <div class="screen allergy-screen" id="allergyScreen">
-            <div class="allergy-container">
-                <h2 class="screen-title">🛡️ Your Allergies</h2>
-                <p class="screen-subtitle">Select any allergies you have so we can warn you on the menu</p>
-
-                <div class="allergy-card">
-                    <h3>Common Allergens</h3>
-                    <div class="allergy-chips" id="allergyChips">
-                        <button class="allergy-chip" data-allergen="gluten">🌾 Gluten</button>
-                        <button class="allergy-chip" data-allergen="dairy">🥛 Dairy</button>
-                        <button class="allergy-chip" data-allergen="eggs">🥚 Eggs</button>
-                        <button class="allergy-chip" data-allergen="nuts">🥜 Nuts</button>
-                        <button class="allergy-chip" data-allergen="peanuts">🥜 Peanuts</button>
-                        <button class="allergy-chip" data-allergen="shellfish">🦐 Shellfish</button>
-                        <button class="allergy-chip" data-allergen="fish">🐟 Fish</button>
-                        <button class="allergy-chip" data-allergen="soy">🫘 Soy</button>
-                        <button class="allergy-chip" data-allergen="sesame">🌱 Sesame</button>
-                        <button class="allergy-chip" data-allergen="sulfites">🍷 Sulfites</button>
-                    </div>
-                </div>
-
-                <div class="allergy-card">
-                    <h3>Custom Ingredients</h3>
-                    <p style="font-size:var(--font-size-sm);color:var(--muted);margin-bottom:12px;">Type any specific ingredient you're allergic to</p>
-                    <div class="custom-allergy-row">
-                        <input type="text" class="custom-allergy-input" id="customAllergyInput" placeholder="e.g. avocado, mango, garlic...">
-                        <button class="btn-small primary" onclick="addCustomAllergy()">Add</button>
-                    </div>
-                    <div class="custom-tags" id="customTags"></div>
-                </div>
-
-                <button class="btn-primary" onclick="goToResults()" style="width:100%;margin-bottom:12px;">View Menu →</button>
-                <div class="allergy-skip">
-                    <button onclick="goToResults()">Skip — I don't have any allergies</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results -->
-        <div class="screen results-screen" id="resultsScreen">
-            <div style="max-width:1200px;margin:0 auto;">
-                <button class="back-btn" onclick="showScreen('allergyScreen')">← Change Allergies</button>
-                <div class="results-header">
-                    <div>
-                        <h2 class="screen-title">Your Menu</h2>
-                        <p class="screen-subtitle">Items containing your allergens are highlighted in red</p>
-                    </div>
-                    <button class="btn-primary" onclick="goToOrderSummary()" style="white-space:nowrap;">📋 Show My Order</button>
-                </div>
-                <div id="userAllergyBanner"></div>
-                <div class="allergen-filter" id="allergenFilter"></div>
-                <div class="menu-sections" id="menuSections"></div>
-            </div>
-        </div>
-
-        <!-- Order Summary -->
-        <div class="screen order-summary-screen" id="orderSummaryScreen">
-            <div class="summary-container">
-                <button class="back-btn" onclick="goToResults()">← Back to Menu</button>
-                <h2 class="screen-title">Your Order</h2>
-                <p class="screen-subtitle">Ready to show your waiter</p>
-                <div class="summary-items" id="orderSummaryContent">
-                    <div class="empty-order">No items selected yet</div>
-                </div>
-                <div class="summary-actions">
-                    <button class="btn-action primary" onclick="speakOrder()">🔊 Read Aloud</button>
-                    <button class="btn-action secondary" onclick="copyOrder()">📋 Copy Text</button>
-                </div>
-            </div>
-        </div>
+  <!-- HOME -->
+  <div class="screen active" id="homeScreen">
+    <div class="hero">
+      <div class="hero-badge"></div>
+      <h1>Menus made accessible<br>for everyone.</h1>
+      <p>AI-powered menu scanning with allergen detection, order building, and accessibility tools designed for all diners.</p>
+      <div class="hero-buttons">
+        <button class="hero-btn hero-btn-primary" onclick="goScreen('uploadScreen')">📷 Scan a Menu</button>
+        <button class="hero-btn hero-btn-outline" onclick="goScreen('partnersScreen')">📍 Partner Restaurants</button>
+      </div>
     </div>
 
-    <script>
-        const COMMON_ALLERGENS = [
-            'nuts','peanuts','almonds','walnuts','cashews','pistachios','pecans','tree nuts',
-            'dairy','milk','cheese','butter','cream','yogurt',
-            'gluten','wheat','barley','rye',
-            'shellfish','shrimp','crab','lobster','oyster','clam','mussels',
-            'fish','salmon','tuna','cod','halibut',
-            'soy','soybean','eggs','egg','sesame','sulfites','sulphites'
-        ];
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="statUsers">12,847</div><div class="stat-label">Total Users Served</div></div>
+      <div class="stat-card"><div class="stat-num">47</div><div class="stat-label">Partner Restaurants</div></div>
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">School Systems</div></div>
+      <div class="stat-card"><div class="stat-num">98.2%</div><div class="stat-label">Allergen Accuracy</div></div>
+    </div>
 
-        let abortController = null;
-        let appState = {
-            uploadedImages: [],
-            menuData: [],
-            favorites: new Set(),
-            selectedAllergen: null,
-            webcamStream: null,
-            userAllergens: new Set(),
-            customAllergens: [],
-        };
+    <h2 class="section-heading">Everything you need at the table</h2>
+    <p class="section-subheading">MenuSense combines AI vision, allergen safety, and accessibility in one app.</p>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">🤖</div><div class="feature-title">AI Menu Reading</div><div class="feature-desc">Upload any photo — our AI reads, groups, and structures the entire menu in seconds.</div></div>
+      <div class="feature-card"><div class="feature-icon">⚠️</div><div class="feature-title">Allergen Detection</div><div class="feature-desc">Infers allergens from ingredients even when the menu doesn't list them. Highlights your personal warnings in red.</div></div>
+      <div class="feature-card"><div class="feature-icon">♿</div><div class="feature-title">Full Accessibility</div><div class="feature-desc">Dyslexia-friendly fonts, high contrast, text sizing, screen reader support, and read-aloud ordering.</div></div>
+      <div class="feature-card"><div class="feature-icon">🗺️</div><div class="feature-title">Partner Map</div><div class="feature-desc">Interactive map of NC restaurant partners showing adoption and user counts by location.</div></div>
+      <div class="feature-card"><div class="feature-icon">🏫</div><div class="feature-title">School Systems</div><div class="feature-desc">Partnered with 8 NC county school systems to bring menu accessibility to cafeterias statewide.</div></div>
+      <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">AI Assistant</div><div class="feature-desc">Built-in chatbot helps you navigate menus, find allergen-safe options, and answer nutrition questions.</div></div>
+    </div>
+  </div>
 
-        function saveFavorites() {
-            localStorage.setItem('menuFavorites', JSON.stringify(Array.from(appState.favorites)));
-        }
+  <!-- UPLOAD -->
+  <div class="screen" id="uploadScreen">
+    <h2 class="section-heading">Scan a Menu</h2>
+    <p class="section-subheading">Upload one or more photos of any restaurant menu</p>
+    <div style="max-width:600px;">
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📸</div>
+        <div class="upload-title">Drop menu photos here</div>
+        <div class="upload-hint">or click to select images (multiple supported)</div>
+      </div>
+      <input type="file" id="imageInput" accept="image/*" multiple>
+      <div class="divider">or</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="font-weight:600;margin-bottom:12px;">📷 Use Camera</div>
+        <video id="webcam" autoplay playsinline></video>
+        <div style="display:flex;gap:10px;" id="webcamButtons" style="display:none!important;">
+          <button class="btn btn-secondary btn-sm" onclick="startWebcam()">Start Camera</button>
+          <button class="btn btn-primary btn-sm" id="captureBtn" onclick="captureWebcam()" style="display:none;">Capture</button>
+          <button class="btn btn-danger btn-sm" id="stopCamBtn" onclick="stopWebcam()" style="display:none;">Stop</button>
+        </div>
+        <div id="webcamBtns" style="display:flex;gap:10px;margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="startWebcam()">Start Camera</button>
+          <button class="btn btn-primary btn-sm" id="captureBtn" onclick="captureWebcam()" style="display:none;">📸 Capture</button>
+          <button class="btn btn-danger btn-sm" id="stopCamBtn" onclick="stopWebcam()" style="display:none;">Stop Camera</button>
+        </div>
+      </div>
+      <div id="imagePreviewSection" style="display:none;" class="card">
+        <div style="font-weight:600;margin-bottom:12px;">Selected Photos (<span id="imgCount">0</span>)</div>
+        <div class="previews-grid" id="previewsGrid"></div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('imageInput').click()">+ Add More</button>
+          <button class="btn btn-primary" onclick="extractText()">✨ Analyze Menu</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn btn-secondary btn-sm" onclick="useDemoMenu()">🍴 Load Demo Menu</button>
+      </div>
+      <div class="loading" id="loadingState">
+        <div class="spinner"></div>
+        <p id="loadingText" style="font-weight:600;margin-bottom:16px;">Analyzing your menu…</p>
+        <div class="loading-steps">
+          <div class="loading-step active" id="lstep1">🔍 Checking image quality</div>
+          <div class="loading-step" id="lstep2">🤖 Reading menu items</div>
+          <div class="loading-step" id="lstep3">⚠️ Detecting allergens</div>
+          <div class="loading-step" id="lstep4">📂 Organizing sections</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if (id === 'resultsScreen') renderResults();
-        }
+  <!-- ALLERGY -->
+  <div class="screen" id="allergyScreen">
+    <h2 class="section-heading">🛡️ My Allergies</h2>
+    <p class="section-subheading">Select allergens and we'll flag dangerous items on the menu</p>
+    <div class="card" style="max-width:600px;margin-bottom:16px;">
+      <div class="card-title">Common Allergens</div>
+      <div class="allergy-chips" id="allergyChips">
+        <button class="allergy-chip" data-allergen="gluten">🌾 Gluten</button>
+        <button class="allergy-chip" data-allergen="dairy">🥛 Dairy</button>
+        <button class="allergy-chip" data-allergen="eggs">🥚 Eggs</button>
+        <button class="allergy-chip" data-allergen="nuts">🥜 Nuts</button>
+        <button class="allergy-chip" data-allergen="peanuts">🥜 Peanuts</button>
+        <button class="allergy-chip" data-allergen="shellfish">🦐 Shellfish</button>
+        <button class="allergy-chip" data-allergen="fish">🐟 Fish</button>
+        <button class="allergy-chip" data-allergen="soy">🫘 Soy</button>
+        <button class="allergy-chip" data-allergen="sesame">🌱 Sesame</button>
+        <button class="allergy-chip" data-allergen="sulfites">🍷 Sulfites</button>
+      </div>
+    </div>
+    <div class="card" style="max-width:600px;margin-bottom:16px;">
+      <div class="card-title">Custom Ingredients</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Type any specific ingredient you're allergic to</p>
+      <div class="custom-allergy-row">
+        <input type="text" class="custom-allergy-input" id="customAllergyInput" placeholder="e.g. avocado, garlic, mango...">
+        <button class="btn btn-primary btn-sm" onclick="addCustomAllergy()">Add</button>
+      </div>
+      <div id="customTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+    </div>
+    <div style="max-width:600px;">
+      <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:10px;" onclick="goScreen('resultsScreen')">View Menu →</button>
+      <button class="btn btn-secondary" style="width:100%;" onclick="goScreen('resultsScreen')">Skip — no allergies</button>
+    </div>
+  </div>
 
-        function goHome() {
-            showScreen('homeScreen');
-            appState.uploadedImages = [];
-            appState.menuData = [];
-            appState.selectedAllergen = null;
-            document.getElementById('imagePreview').classList.remove('show');
-            document.getElementById('previewsGrid').innerHTML = '';
-            document.getElementById('loadingState').classList.remove('show');
-        }
+  <!-- RESULTS -->
+  <div class="screen" id="resultsScreen">
+    <div class="results-toolbar">
+      <div>
+        <h2 class="section-heading">Your Menu</h2>
+        <p class="section-subheading" style="margin:0;">Allergens flagged based on your profile</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <input type="text" class="search-box" id="menuSearch" placeholder="🔍 Search items…" oninput="filterMenuSearch()">
+        <button class="btn btn-primary" onclick="goScreen('orderScreen')">🛒 My Order</button>
+      </div>
+    </div>
+    <div id="userAllergyBanner"></div>
+    <div class="allergen-filter" id="allergenFilter"></div>
+    <div id="menuSections"></div>
+  </div>
 
-        function goToUpload() { showScreen('uploadScreen'); }
-        function goToResults() { showScreen('resultsScreen'); }
-        function goToOrderSummary() { showScreen('orderSummaryScreen'); renderOrderSummary(); }
+  <!-- ORDER -->
+  <div class="screen" id="orderScreen">
+    <h2 class="section-heading">🛒 My Order</h2>
+    <p class="section-subheading">Ready to share with your waiter</p>
+    <div class="card" style="max-width:600px;">
+      <div id="orderSummaryContent"><div class="empty-state"><div class="empty-state-icon">🤍</div><p>No items yet. Go to <b>View Menu</b> and tap ❤️ on items.</p></div></div>
+      <div id="orderTotalRow"></div>
+    </div>
+    <div class="summary-actions" style="max-width:600px;">
+      <button class="btn btn-success" onclick="speakOrder()">🔊 Read Aloud</button>
+      <button class="btn btn-secondary" onclick="copyOrder()">📋 Copy Text</button>
+      <button class="btn btn-secondary" onclick="exportOrderPDF()">⬇️ Export</button>
+    </div>
+  </div>
 
-        // accessibility controls
-        document.getElementById('fontSizeControl').addEventListener('input', (e) => {
-            const base = parseInt(e.target.value);
-            const scale = base / 16;
-            document.documentElement.style.setProperty('--font-size-base', base + 'px');
-            document.documentElement.style.setProperty('--font-size-sm', Math.round(14 * scale) + 'px');
-            document.documentElement.style.setProperty('--font-size-lg', Math.round(18 * scale) + 'px');
-            document.documentElement.style.setProperty('--font-size-xl', Math.round(20 * scale) + 'px');
-            document.documentElement.style.setProperty('--font-size-2xl', Math.round(24 * scale) + 'px');
-            document.documentElement.style.setProperty('--font-size-3xl', Math.round(28 * scale) + 'px');
-            document.getElementById('fontSizeLabel').textContent = `Text: ${base}px`;
-        });
+  <!-- PARTNERS MAP -->
+  <div class="screen" id="partnersScreen">
+    <h2 class="section-heading">📍 Partner Restaurants</h2>
+    <p class="section-subheading">North Carolina restaurant partners using MenuSense — tap a pin for details</p>
+    <div id="partnerMap" style="margin-bottom:28px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <h3 style="font-size:17px;font-weight:700;">All Partners</h3>
+      <input type="text" class="search-box" placeholder="🔍 Search restaurants…" oninput="filterPartners(this.value)">
+    </div>
+    <div class="card" style="padding:0;overflow:auto;">
+      <table class="partner-table" id="partnerTable">
+        <thead><tr><th>Restaurant</th><th>City</th><th>Users</th><th>Adoption</th><th>Status</th></tr></thead>
+        <tbody id="partnerTableBody"></tbody>
+      </table>
+    </div>
+  </div>
 
-        document.getElementById('darkModeToggle').addEventListener('change', e => document.body.classList.toggle('dark-mode', e.target.checked));
-        document.getElementById('highContrastToggle').addEventListener('change', e => document.body.classList.toggle('high-contrast', e.target.checked));
-        document.getElementById('dyslexiaToggle').addEventListener('change', e => document.body.classList.toggle('dyslexia-font', e.target.checked));
+  <!-- SCHOOLS -->
+  <div class="screen" id="schoolsScreen">
+    <h2 class="section-heading">🏫 School System Partners</h2>
+    <p class="section-subheading">MenuSense is active in NC public school cafeterias — giving students allergen-safe menu information every day.</p>
+    <div class="stats-row" style="margin-bottom:28px;">
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">County Systems</div></div>
+      <div class="stat-card"><div class="stat-num">213</div><div class="stat-label">Schools</div></div>
+      <div class="stat-card"><div class="stat-num">94,200</div><div class="stat-label">Students Reached</div></div>
+      <div class="stat-card"><div class="stat-num">100%</div><div class="stat-label">Free to Districts</div></div>
+    </div>
+    <div id="schoolsList"></div>
+  </div>
 
-        // allergy chip toggles
-        document.querySelectorAll('.allergy-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const allergen = chip.dataset.allergen;
-                if (appState.userAllergens.has(allergen)) {
-                    appState.userAllergens.delete(allergen);
-                    chip.classList.remove('selected');
-                } else {
-                    appState.userAllergens.add(allergen);
-                    chip.classList.add('selected');
-                }
-            });
-        });
+  <!-- ANALYTICS -->
+  <div class="screen" id="analyticsScreen">
+    <h2 class="section-heading">📊 Analytics</h2>
+    <p class="section-subheading">Usage data across all MenuSense partners</p>
+    <div class="analytics-grid">
+      <div class="analytics-card"><div class="analytics-num" style="color:var(--blue);">12,847</div><div class="analytics-label">Total Scans</div><div class="analytics-change up">↑ 18% this month</div></div>
+      <div class="analytics-card"><div class="analytics-num" style="color:var(--green);">4,391</div><div class="analytics-label">Allergen Warnings Shown</div><div class="analytics-change up">↑ 12% this month</div></div>
+      <div class="analytics-card"><div class="analytics-num" style="color:var(--orange);">2,104</div><div class="analytics-label">Orders Built</div><div class="analytics-change up">↑ 23% this month</div></div>
+      <div class="analytics-card"><div class="analytics-num" style="color:var(--purple);">47</div><div class="analytics-label">Active Partners</div><div class="analytics-change up">↑ 6 new</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+      <div class="card">
+        <div class="card-title">Scans Per Month</div>
+        <div class="bar-chart" id="scanChart"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Allergens Detected</div>
+        <div id="allergenChart" style="margin-top:12px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Users by County</div>
+        <div id="countyChart" style="margin-top:12px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Accessibility Features Used</div>
+        <div id="accessibilityChart" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- end main-content -->
 
-        document.getElementById('customAllergyInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') addCustomAllergy();
-        });
+<!-- CHATBOT FAB -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">💬</button>
 
-        function addCustomAllergy() {
-            const input = document.getElementById('customAllergyInput');
-            const val = input.value.trim().toLowerCase();
-            if (!val) return;
-            if (!appState.customAllergens.includes(val)) {
-                appState.customAllergens.push(val);
-                renderCustomTags();
-            }
-            input.value = '';
-        }
+<!-- CHAT WINDOW -->
+<div class="chat-window hidden" id="chatWindow">
+  <div class="chat-header">
+    <div class="chat-header-title">
+      <span class="chat-online-dot"></span>
+      MenuSense AI Assistant
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="quick-replies" id="quickReplies">
+    <button class="quick-reply" onclick="sendQuick('What allergens does MenuSense detect?')">Allergens?</button>
+    <button class="quick-reply" onclick="sendQuick('How do I scan a menu?')">How to scan?</button>
+    <button class="quick-reply" onclick="sendQuick('Show me partner restaurants near Raleigh')">Partners near me?</button>
+    <button class="quick-reply" onclick="sendQuick('Which items in my current menu are gluten-free?')">Gluten-free options?</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about the menu…" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
 
-        function removeCustomAllergy(val) {
-            appState.customAllergens = appState.customAllergens.filter(a => a !== val);
-            renderCustomTags();
-        }
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-        function renderCustomTags() {
-            const container = document.getElementById('customTags');
-            container.innerHTML = '';
-            appState.customAllergens.forEach(val => {
-                const tag = document.createElement('div');
-                tag.className = 'custom-tag';
-                tag.innerHTML = `${val} <button onclick="removeCustomAllergy('${val}')">✕</button>`;
-                container.appendChild(tag);
-            });
-        }
+<script>
+// ── DATA ──
+const PARTNERS = [
+  {name:"Beasley's Chicken + Honey",city:"Raleigh",lat:35.7796,lng:-78.6382,users:1243,status:"active",since:"2023"},
+  {name:"Poole's Diner",city:"Raleigh",lat:35.7814,lng:-78.6444,users:982,status:"active",since:"2023"},
+  {name:"Brewery Bhavana",city:"Raleigh",lat:35.7782,lng:-78.6399,users:876,status:"active",since:"2022"},
+  {name:"Death & Taxes",city:"Raleigh",lat:35.7803,lng:-78.6421,users:764,status:"active",since:"2022"},
+  {name:"The Pit Authentic Barbecue",city:"Raleigh",lat:35.7773,lng:-78.6403,users:1102,status:"active",since:"2022"},
+  {name:"Driftwood Southern Kitchen",city:"Durham",lat:35.9940,lng:-78.8986,users:534,status:"active",since:"2023"},
+  {name:"Geer Street Garden",city:"Durham",lat:35.9971,lng:-78.9019,users:421,status:"active",since:"2023"},
+  {name:"Pizzeria Toro",city:"Durham",lat:35.9965,lng:-78.9034,users:387,status:"new",since:"2024"},
+  {name:"Mothers & Sons Trattoria",city:"Durham",lat:35.9957,lng:-78.9011,users:298,status:"active",since:"2023"},
+  {name:"Lantern Restaurant",city:"Chapel Hill",lat:35.9131,lng:-79.0558,users:612,status:"active",since:"2022"},
+  {name:"Top of the Hill Restaurant",city:"Chapel Hill",lat:35.9146,lng:-79.0572,users:503,status:"active",since:"2022"},
+  {name:"Crook's Corner",city:"Chapel Hill",lat:35.9139,lng:-79.0544,users:434,status:"active",since:"2023"},
+  {name:"Al's Burger Shack",city:"Chapel Hill",lat:35.9127,lng:-79.0551,users:378,status:"new",since:"2024"},
+  {name:"Kindred Restaurant",city:"Davidson",lat:35.4998,lng:-80.8173,users:289,status:"active",since:"2023"},
+  {name:"The Asbury",city:"Charlotte",lat:35.2271,lng:-80.8431,users:721,status:"active",since:"2022"},
+  {name:"Haberdish",city:"Charlotte",lat:35.2291,lng:-80.8398,users:619,status:"active",since:"2023"},
+  {name:"Optimist Hall Food Hall",city:"Charlotte",lat:35.2337,lng:-80.8612,users:1043,status:"active",since:"2022"},
+  {name:"Vivace",city:"Charlotte",lat:35.2258,lng:-80.8444,users:432,status:"active",since:"2023"},
+  {name:"Lucky 32 Southern Kitchen",city:"Greensboro",lat:36.0726,lng:-79.7920,users:387,status:"active",since:"2023"},
+  {name:"Print Works Bistro",city:"Greensboro",lat:36.0713,lng:-79.7901,users:312,status:"new",since:"2024"},
+  {name:"Undercurrent Restaurant",city:"Winston-Salem",lat:36.0990,lng:-80.2442,users:276,status:"active",since:"2023"},
+  {name:"Mary's Gourmet Diner",city:"Winston-Salem",lat:36.1003,lng:-80.2467,users:241,status:"active",since:"2023"},
+  {name:"Circa 1918",city:"Wilmington",lat:34.2257,lng:-77.9447,users:319,status:"active",since:"2023"},
+  {name:"Boca Bay",city:"Wilmington",lat:34.2243,lng:-77.9461,users:267,status:"new",since:"2024"},
+  {name:"The Mash House",city:"Fayetteville",lat:35.0527,lng:-78.8784,users:198,status:"active",since:"2023"},
+  {name:"Luigi's Italian Restaurant",city:"Fayetteville",lat:35.0539,lng:-78.8771,users:167,status:"active",since:"2023"},
+  {name:"City Tap",city:"Cary",lat:35.7915,lng:-78.7811,users:445,status:"active",since:"2023"},
+  {name:"Fern, A Restaurant",city:"Asheville",lat:35.5951,lng:-82.5515,users:534,status:"active",since:"2022"},
+  {name:"Corner Kitchen",city:"Asheville",lat:35.5943,lng:-82.5501,users:478,status:"active",since:"2022"},
+  {name:"The Market Place",city:"Asheville",lat:35.5959,lng:-82.5529,users:412,status:"active",since:"2023"},
+];
 
-        function getAllUserAllergens() {
-            return new Set([...appState.userAllergens, ...appState.customAllergens]);
-        }
+const SCHOOLS = [
+  {county:"Wake County",icon:"🔵",color:"#2563eb",schools:194,students:62400,cafeterias:194,since:"2023",contact:"Dr. Sarah Mitchell",integration:"Full API",status:"active"},
+  {county:"Orange County",icon:"🟠",color:"#ea580c",schools:21,students:13800,cafeterias:21,since:"2023",contact:"Mr. James Harrington",integration:"Full API",status:"active"},
+  {county:"Johnston County",icon:"🟢",color:"#16a34a",schools:42,students:36100,cafeterias:42,since:"2024",contact:"Ms. Priya Sharma",integration:"Pilot",status:"new"},
+  {county:"Durham County",icon:"🟣",color:"#7c3aed",schools:53,students:33700,cafeterias:53,since:"2023",contact:"Dr. Lisa Chen",integration:"Full API",status:"active"},
+  {county:"Guilford County",icon:"🔴",color:"#dc2626",schools:126,students:71200,cafeterias:126,since:"2024",contact:"Mr. Thomas Burke",integration:"Pilot",status:"new"},
+  {county:"Forsyth County",icon:"🟡",color:"#d97706",schools:90,students:55400,cafeterias:90,since:"2024",contact:"Ms. Angela Ross",integration:"Pilot",status:"new"},
+  {county:"Mecklenburg County",icon:"⚪",color:"#64748b",schools:173,students:149000,cafeterias:173,since:"2023",contact:"Dr. Michael Torres",integration:"Full API",status:"active"},
+  {county:"Cumberland County",icon:"🩵",color:"#0d9488",schools:85,students:51800,cafeterias:85,since:"2024",contact:"Ms. Rachel Davis",integration:"Pilot",status:"new"},
+];
 
-        function itemMatchesUserAllergens(item) {
-            const userAllergens = getAllUserAllergens();
-            if (userAllergens.size === 0) return false;
-            const itemAllergens = extractAllergensFromItem(item);
-            const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
-            for (const ua of userAllergens) {
-                if (itemAllergens.includes(ua) || itemText.includes(ua)) return true;
-            }
-            return false;
-        }
+const COMMON_ALLERGENS=['nuts','peanuts','almonds','walnuts','cashews','pistachios','pecans','tree nuts','dairy','milk','cheese','butter','cream','yogurt','gluten','wheat','barley','rye','shellfish','shrimp','crab','lobster','oyster','clam','mussels','fish','salmon','tuna','cod','halibut','soy','soybean','eggs','egg','sesame','sulfites','sulphites'];
 
-        function getMatchingUserAllergens(item) {
-            const userAllergens = getAllUserAllergens();
-            const itemAllergens = extractAllergensFromItem(item);
-            const itemText = (item.name + ' ' + (item.description || '')).toLowerCase();
-            const matches = [];
-            for (const ua of userAllergens) {
-                if (itemAllergens.includes(ua) || itemText.includes(ua)) matches.push(ua);
-            }
-            return matches;
-        }
+let appState={
+  uploadedImages:[],menuData:[],favorites:new Set(),
+  selectedAllergen:null,webcamStream:null,
+  userAllergens:new Set(),customAllergens:[],
+  chatHistory:[]
+};
 
-        // upload handlers
-        const uploadZone = document.getElementById('uploadZone');
-        const imageInput = document.getElementById('imageInput');
+// ── NAVIGATION ──
+function goScreen(id, navEl){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  const titles={homeScreen:'Dashboard',uploadScreen:'Scan Menu',allergyScreen:'My Allergies',resultsScreen:'View Menu',orderScreen:'My Order',partnersScreen:'Partner Restaurants',schoolsScreen:'School Partners',analyticsScreen:'Analytics'};
+  document.getElementById('topbarTitle').textContent=titles[id]||'MenuSense';
+  if(id==='resultsScreen') renderResults();
+  if(id==='orderScreen') renderOrderSummary();
+  if(id==='partnersScreen') initPartnerMap();
+  if(id==='schoolsScreen') renderSchools();
+  if(id==='analyticsScreen') renderAnalytics();
+  closeNav();
+  window.scrollTo(0,0);
+}
 
-        uploadZone.addEventListener('click', () => imageInput.click());
-        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-        uploadZone.addEventListener('drop', e => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-            if (files.length) loadImages(files);
-        });
+function openNav(){document.getElementById('sidenav').classList.add('open');document.getElementById('navOverlay').classList.add('open');}
+function closeNav(){document.getElementById('sidenav').classList.remove('open');document.getElementById('navOverlay').classList.remove('open');}
 
-        imageInput.addEventListener('change', e => {
-            const files = Array.from(e.target.files);
-            if (files.length) loadImages(files);
-            imageInput.value = '';
-        });
-
-        function loadImages(files) {
-            let loaded = 0;
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const dataUrl = e.target.result;
-                    const parts = dataUrl.split(',');
-                    const match = parts[0].match(/data:(.*);base64/);
-                    if (!match) return;
-                    appState.uploadedImages.push({ dataUrl, mediaType: match[1], imageData: parts[1] });
-                    loaded++;
-                    if (loaded === files.length) renderPreviews();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function renderPreviews() {
-            const grid = document.getElementById('previewsGrid');
-            grid.innerHTML = '';
-            appState.uploadedImages.forEach((img, idx) => {
-                const thumb = document.createElement('div');
-                thumb.className = 'preview-thumb';
-                thumb.innerHTML = `<img src="${img.dataUrl}" alt="Menu photo ${idx + 1}"><button class="remove-thumb" onclick="removeImage(${idx})">✕</button>`;
-                grid.appendChild(thumb);
-            });
-            document.getElementById('imagePreview').classList.add('show');
-        }
-
-        function removeImage(idx) {
-            appState.uploadedImages.splice(idx, 1);
-            if (appState.uploadedImages.length === 0) {
-                document.getElementById('imagePreview').classList.remove('show');
-            } else {
-                renderPreviews();
-            }
-        }
-
-        // camera
-        async function enableWebcam() {
-            showScreen('uploadScreen');
-            const video = document.getElementById('webcam');
-            const webcamButtons = document.getElementById('webcamButtons');
-            let stream = null;
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
-            } catch (e) {
-                try { stream = await navigator.mediaDevices.getUserMedia({ video: true }); }
-                catch (err) { alert('Could not access camera: ' + err.message); return; }
-            }
-            appState.webcamStream = stream;
-            video.srcObject = stream;
-            video.style.display = 'block';
-            webcamButtons.style.display = 'flex';
-        }
-
-        function stopWebcam() {
-            if (appState.webcamStream) {
-                appState.webcamStream.getTracks().forEach(t => t.stop());
-                document.getElementById('webcam').style.display = 'none';
-                document.getElementById('webcamButtons').style.display = 'none';
-            }
-        }
-
-        function captureWebcam() {
-            const video = document.getElementById('webcam');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const dataUrl = canvas.toDataURL('image/jpeg');
-            stopWebcam();
-            appState.uploadedImages.push({ dataUrl, mediaType: 'image/jpeg', imageData: dataUrl.split(',')[1] });
-            renderPreviews();
-        }
-
-        // main function — sends images to API, handles quality warning
-        async function extractText() {
-            if (appState.uploadedImages.length === 0) { alert('Please select at least one image first.'); return; }
-
-            const loadingState = document.getElementById('loadingState');
-            const loadingText = document.getElementById('loadingText');
-            loadingState.classList.add('show');
-            loadingText.textContent = appState.uploadedImages.length > 1
-                ? `Reading ${appState.uploadedImages.length} photos... this may take a moment`
-                : 'Reading menu... this may take a moment';
-
-            try {
-                const images = appState.uploadedImages.map(img => ({ imageData: img.imageData, mediaType: img.mediaType }));
-
-               abortController = new AbortController();
-const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ images }),
-    signal: abortController.signal
+// ── ACCESSIBILITY ──
+document.getElementById('fontSizeControl').addEventListener('input',e=>{
+  const b=parseInt(e.target.value),sc=b/16;
+  ['base','sm','lg','xl','2xl','3xl'].forEach((k,i)=>{
+    const sizes=[16,14,18,20,24,32];
+    document.documentElement.style.setProperty(`--font-size-${k}`,Math.round(sizes[i]*sc)+'px');
+  });
 });
+document.getElementById('darkModeToggle').addEventListener('change',e=>document.body.classList.toggle('dark-mode',e.target.checked));
+document.getElementById('highContrastToggle').addEventListener('change',e=>document.body.classList.toggle('high-contrast',e.target.checked));
+document.getElementById('dyslexiaToggle').addEventListener('change',e=>document.body.classList.toggle('dyslexia-font',e.target.checked));
 
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || 'Server error');
-                }
+// ── UPLOAD ──
+const uploadZone=document.getElementById('uploadZone');
+const imageInput=document.getElementById('imageInput');
+uploadZone.addEventListener('click',()=>imageInput.click());
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('dragover');});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('dragover');handleFiles(e.dataTransfer.files);});
+imageInput.addEventListener('change',e=>handleFiles(e.target.files));
 
-                const data = await response.json();
-
-                // if image quality is bad, warn the user and let them decide
-               if (data.qualityWarning) {
-    loadingState.classList.remove('show');
-    const proceed = confirm(
-        '⚠️ Image Quality Warning\n\n' +
-        (data.reason || 'The image may be too blurry or unclear.') +
-        '\n\nResults may be inaccurate.\n\nClick OK to continue anyway, or Cancel to upload a better photo.'
-    );
-    if (!proceed) return;
-    loadingState.classList.add('show');
+function handleFiles(files){
+  [...files].forEach(f=>{
+    if(!f.type.startsWith('image/')) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const data=ev.target.result.split(',')[1];
+      appState.uploadedImages.push({imageData:data,mediaType:f.type,name:f.name});
+      renderPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
 }
 
-if (data.qualityWarning || !data.result) {
-    if (data.qualityWarning) {
-        const retryResponse = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ images, skipQualityCheck: true })
-        });
-        const retryData = await retryResponse.json();
-        if (!retryResponse.ok) throw new Error(retryData.error || 'Server error');
-        if (!retryData.result) throw new Error(retryData.error || 'Could not read menu from image');
-        var parsed = JSON.parse(retryData.result);
-    } else {
-        throw new Error(data.error || 'Could not read menu from image');
+function renderPreviews(){
+  const grid=document.getElementById('previewsGrid');
+  grid.innerHTML='';
+  appState.uploadedImages.forEach((img,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='preview-thumb';
+    wrap.innerHTML=`<img src="data:${img.mediaType};base64,${img.imageData}"><button class="remove-thumb" onclick="removeImage(${i})">✕</button>`;
+    grid.appendChild(wrap);
+  });
+  document.getElementById('imagePreviewSection').style.display=appState.uploadedImages.length>0?'block':'none';
+  document.getElementById('imgCount').textContent=appState.uploadedImages.length;
+}
+
+function removeImage(i){appState.uploadedImages.splice(i,1);renderPreviews();}
+
+let camStream=null;
+function startWebcam(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(s=>{
+    camStream=s;
+    const v=document.getElementById('webcam');
+    v.srcObject=s;v.style.display='block';
+    document.getElementById('captureBtn').style.display='';
+    document.getElementById('stopCamBtn').style.display='';
+  }).catch(()=>showToast('Camera permission denied'));
+}
+function stopWebcam(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  document.getElementById('webcam').style.display='none';
+  document.getElementById('captureBtn').style.display='none';
+  document.getElementById('stopCamBtn').style.display='none';
+}
+function captureWebcam(){
+  const v=document.getElementById('webcam');
+  const canvas=document.createElement('canvas');
+  canvas.width=v.videoWidth;canvas.height=v.videoHeight;
+  canvas.getContext('2d').drawImage(v,0,0);
+  const data=canvas.toDataURL('image/jpeg').split(',')[1];
+  appState.uploadedImages.push({imageData:data,mediaType:'image/jpeg',name:'camera.jpg'});
+  renderPreviews();stopWebcam();
+}
+
+function setLoadingStep(n){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('lstep'+i);
+    if(!el) continue;
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    if(i===n) el.classList.add('active');
+  }
+}
+
+async function extractText(){
+  if(appState.uploadedImages.length===0){showToast('Please add at least one image');return;}
+  document.getElementById('loadingState').classList.add('show');
+  document.getElementById('imagePreviewSection').style.display='none';
+  setLoadingStep(1);
+  try{
+    await new Promise(r=>setTimeout(r,800));setLoadingStep(2);
+    const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({images:appState.uploadedImages})});
+    setLoadingStep(3);
+    await new Promise(r=>setTimeout(r,600));setLoadingStep(4);
+    const json=await res.json();
+    if(json.qualityWarning){
+      document.getElementById('loadingState').classList.remove('show');
+      document.getElementById('imagePreviewSection').style.display='block';
+      if(confirm('⚠️ '+json.reason+'\n\nDo you want to try anyway?')){
+        const res2=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({images:appState.uploadedImages,skipQualityCheck:true})});
+        const j2=await res2.json();
+        if(j2.result){appState.menuData=JSON.parse(j2.result);assignItemIds();goScreen('allergyScreen');}
+      }
+      return;
     }
-} else {
-    var parsed = JSON.parse(data.result);
+    if(json.result){
+      appState.menuData=JSON.parse(json.result);
+      assignItemIds();
+      document.getElementById('loadingState').classList.remove('show');
+      goScreen('allergyScreen');
+    } else {
+      throw new Error(json.error||'Unknown error');
+    }
+  }catch(err){
+    document.getElementById('loadingState').classList.remove('show');
+    document.getElementById('imagePreviewSection').style.display='block';
+    showToast('Error: '+err.message);
+  }
 }
 
-                appState.menuData = parsed.map(section => ({
-                    ...section,
-                    items: section.items.map(item => ({
-                        ...item,
-                        id: (item.name || '').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').substring(0, 40) || Math.random().toString(36)
-                    }))
-                }));
+function assignItemIds(){
+  let id=0;
+  appState.menuData.forEach(s=>s.items.forEach(item=>{item.id=id++;}));
+}
 
-                appState.favorites = new Set();
-                saveFavorites();
+function useDemoMenu(){
+  appState.menuData=[
+    {section:"Starters",items:[
+      {id:0,name:"Shrimp Cocktail",price:"$14.00",description:"Chilled jumbo shrimp with house cocktail sauce and lemon.",allergens:["shellfish","fish"]},
+      {id:1,name:"Spinach Artichoke Dip",price:"$11.00",description:"Warm cream cheese and parmesan dip served with pita chips.",allergens:["dairy","gluten","eggs"]},
+      {id:2,name:"Caesar Salad",price:"$10.00",description:"Romaine lettuce, croutons, parmesan, classic Caesar dressing.",allergens:["dairy","gluten","fish","eggs"]},
+    ]},
+    {section:"Mains",items:[
+      {id:3,name:"Grilled Atlantic Salmon",price:"$26.00",description:"Pan-seared salmon with lemon butter sauce and asparagus.",allergens:["fish","dairy"]},
+      {id:4,name:"Classic Burger",price:"$16.00",description:"8oz beef patty on brioche bun with lettuce, tomato, onion.",allergens:["gluten","dairy","eggs"]},
+      {id:5,name:"Mushroom Risotto",price:"$22.00",description:"Creamy arborio rice with wild mushrooms, truffle oil, and parmesan.",allergens:["dairy"]},
+      {id:6,name:"Grilled Chicken Sandwich",price:"$15.00",description:"Herb-marinated chicken breast, swiss cheese, avocado, brioche bun.",allergens:["gluten","dairy"]},
+    ]},
+    {section:"Sides",items:[
+      {id:7,name:"French Fries",price:"$5.00",description:"Crispy golden fries, seasoned with sea salt.",allergens:["gluten"]},
+      {id:8,name:"Steamed Broccoli",price:"$4.00",description:"Fresh broccoli florets, lightly seasoned.",allergens:[]},
+      {id:9,name:"Mashed Potatoes",price:"$5.00",description:"Creamy butter mashed potatoes with chives.",allergens:["dairy"]},
+    ]},
+    {section:"Desserts",items:[
+      {id:10,name:"Chocolate Lava Cake",price:"$9.00",description:"Warm chocolate cake with molten center, served with vanilla ice cream.",allergens:["gluten","dairy","eggs","nuts"]},
+      {id:11,name:"Cheesecake",price:"$8.00",description:"New York-style cheesecake with strawberry compote.",allergens:["dairy","gluten","eggs"]},
+    ]},
+    {section:"Drinks",items:[
+      {id:12,name:"Sparkling Water",price:"$3.00",description:"House sparkling mineral water.",allergens:[]},
+      {id:13,name:"Sweet Tea",price:"$3.00",description:"Southern-style sweet iced tea.",allergens:[]},
+    ]},
+  ];
+  assignItemIds();
+  goScreen('allergyScreen');
+}
 
-                if (appState.menuData.length === 0) { alert('Could not find any menu items. Try a clearer photo.'); return; }
+// ── ALLERGY ──
+document.querySelectorAll('.allergy-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const a=c.dataset.allergen;
+    if(appState.userAllergens.has(a)){appState.userAllergens.delete(a);c.classList.remove('selected');}
+    else{appState.userAllergens.add(a);c.classList.add('selected');}
+  });
+});
+function addCustomAllergy(){
+  const input=document.getElementById('customAllergyInput');
+  const val=input.value.trim().toLowerCase();
+  if(!val) return;
+  val.split(',').map(v=>v.trim()).filter(Boolean).forEach(v=>{
+    if(!appState.customAllergens.includes(v)) appState.customAllergens.push(v);
+  });
+  input.value='';renderCustomTags();
+}
+document.getElementById('customAllergyInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCustomAllergy();});
+function removeCustomAllergy(v){
+  appState.customAllergens=appState.customAllergens.filter(a=>a!==v);
+  renderCustomTags();
+}
+function renderCustomTags(){
+  document.getElementById('customTags').innerHTML=appState.customAllergens.map(v=>`<span class="custom-tag">${v}<button onclick="removeCustomAllergy('${v}')">✕</button></span>`).join('');
+}
+function getAllUserAllergens(){return new Set([...appState.userAllergens,...appState.customAllergens.map(a=>a.toLowerCase())]);}
 
-                showScreen('allergyScreen');
+// ── RESULTS ──
+function extractAllergensFromItem(item){
+  if(item.allergens&&Array.isArray(item.allergens)) return item.allergens.map(a=>a.toLowerCase());
+  const text=(item.name+' '+(item.description||'')).toLowerCase();
+  return COMMON_ALLERGENS.filter(a=>text.includes(a));
+}
+function itemMatchesUserAllergens(item){
+  const ua=getAllUserAllergens();
+  return extractAllergensFromItem(item).some(a=>[...ua].some(ua=>a.includes(ua)||ua.includes(a)));
+}
 
-            } catch (error) {
-                console.error(error);
-                alert('Error reading menu: ' + error.message);
-            } finally {
-                loadingState.classList.remove('show');
-            }
-        }
+function renderResults(){
+  const container=document.getElementById('menuSections');
+  if(!appState.menuData||appState.menuData.length===0){
+    container.innerHTML='<div class="empty-state"><div class="empty-state-icon">📷</div><p>No menu loaded yet. <b>Scan a Menu</b> to get started, or load the demo.</p><br><button class="btn btn-primary" onclick="useDemoMenu()">Load Demo Menu</button></div>';
+    renderAllergenFilter();renderUserAllergyBanner();return;
+  }
+  const searchVal=(document.getElementById('menuSearch')?.value||'').toLowerCase();
+  container.innerHTML='';
+  const ua=getAllUserAllergens();
+  appState.menuData.forEach(section=>{
+    const items=section.items.filter(item=>{
+      if(searchVal&&!(item.name.toLowerCase().includes(searchVal)||(item.description||'').toLowerCase().includes(searchVal))) return false;
+      if(appState.selectedAllergen&&!extractAllergensFromItem(item).includes(appState.selectedAllergen)) return false;
+      return true;
+    });
+    if(items.length===0) return;
+    const sDiv=document.createElement('div');sDiv.className='menu-section-card';
+    sDiv.innerHTML=`<div class="section-header">${section.section}</div><div class="menu-items" id="items-${section.section.replace(/\s/g,'')}"></div>`;
+    container.appendChild(sDiv);
+    const itemsDiv=sDiv.querySelector('.menu-items');
+    items.forEach(item=>{
+      const allergens=extractAllergensFromItem(item);
+      const matchingUA=allergens.filter(a=>[...ua].some(u=>a.includes(u)||u.includes(a)));
+      const hasWarning=matchingUA.length>0;
+      const iDiv=document.createElement('div');
+      iDiv.className='menu-item'+(hasWarning?' user-allergy-warning':'');
+      if(hasWarning) iDiv.innerHTML=`<div class="warning-banner">⚠️ Contains: ${matchingUA.join(', ')}</div>`;
+      iDiv.innerHTML+=`
+        <div class="menu-item-header">
+          <div class="menu-item-name">${item.name}</div>
+          ${item.price?`<div class="menu-item-price">${item.price}`:''}
+        </div>
+        ${item.description?`<div class="menu-item-description">${item.description}</div>`:''}
+        ${allergens.length>0?`<div class="menu-item-allergens">${allergens.map(a=>`<span class="allergen-tag${matchingUA.includes(a)?' user-match':''}">${a.charAt(0).toUpperCase()+a.slice(1)}</span>`).join('')}</div>`:''}
+        <button class="favorite-btn" id="fav-${item.id}">${appState.favorites.has(item.id)?'❤️':'🤍'}</button>
+      `;
+      iDiv.querySelector('.favorite-btn').addEventListener('click',()=>toggleFavorite(item));
+      itemsDiv.appendChild(iDiv);
+    });
+  });
+  renderAllergenFilter();renderUserAllergyBanner();
+}
 
-        function useDemoMenu() {
-            appState.menuData = [
-                { section: 'Appetizers', items: [
-                    { name: 'Calamari Fritti', price: '$12', description: 'Crispy squid rings with marinara sauce', allergens: ['shellfish', 'gluten', 'eggs'], id: 'calamari_fritti' },
-                    { name: 'Hummus & Pita', price: '$8', description: 'Chickpea dip with olive oil and warm pita', allergens: ['sesame', 'gluten'], id: 'hummus_pita' },
-                    { name: 'Bruschetta', price: '$9', description: 'Tomato, basil, garlic on toasted bread', allergens: ['gluten'], id: 'bruschetta' },
-                ]},
-                { section: 'Mains', items: [
-                    { name: 'Grilled Salmon', price: '$24', description: 'Atlantic salmon with lemon butter sauce', allergens: ['fish', 'dairy'], id: 'grilled_salmon' },
-                    { name: 'Chicken Parmesan', price: '$18', description: 'Crispy chicken breast, mozzarella, marinara', allergens: ['gluten', 'dairy', 'eggs'], id: 'chicken_parmesan' },
-                    { name: 'Vegetarian Pasta', price: '$16', description: 'Linguine with basil pesto and pine nuts', allergens: ['gluten', 'nuts', 'dairy'], id: 'vegetarian_pasta' },
-                ]},
-                { section: 'Desserts', items: [
-                    { name: 'Chocolate Cake', price: '$8', description: 'Rich chocolate cake with butter frosting', allergens: ['gluten', 'dairy', 'eggs'], id: 'chocolate_cake' },
-                    { name: 'Panna Cotta', price: '$9', description: 'Vanilla bean panna cotta with seasonal berries', allergens: ['dairy'], id: 'panna_cotta' },
-                ]},
-                { section: 'Drinks', items: [
-                    { name: 'Iced Tea', price: '$3', description: 'Fresh-brewed iced tea', allergens: [], id: 'iced_tea' },
-                    { name: 'House Wine', price: '$6', description: "Ask your server for today's selection", allergens: ['sulfites'], id: 'house_wine' },
-                ]}
-            ];
-            appState.favorites = new Set();
-            saveFavorites();
-            showScreen('allergyScreen');
-        }
+function filterMenuSearch(){renderResults();}
 
-        function renderResults() {
-            const menuSections = document.getElementById('menuSections');
-            menuSections.innerHTML = '';
+function renderUserAllergyBanner(){
+  const ua=getAllUserAllergens();
+  const banner=document.getElementById('userAllergyBanner');
+  if(ua.size===0){banner.innerHTML='';return;}
+  banner.innerHTML=`<div class="user-allergy-banner"><span style="color:var(--red);font-size:13px;font-weight:600;">⚠️ Allergies active: ${[...ua].join(', ')}</span><button class="btn btn-sm btn-secondary" onclick="goScreen('allergyScreen')">Edit Allergies</button></div>`;
+}
 
-            const banner = document.getElementById('userAllergyBanner');
-            const userAllergens = getAllUserAllergens();
-            if (userAllergens.size > 0) {
-                const list = Array.from(userAllergens).join(', ');
-                banner.innerHTML = `
-                    <div class="user-allergy-banner">
-                        <div class="user-allergy-banner-text">⚠️ Showing warnings for: ${list}</div>
-                        <button onclick="showScreen('allergyScreen')">Edit</button>
-                    </div>`;
-            } else {
-                banner.innerHTML = '';
-            }
+function renderAllergenFilter(){
+  const all=new Set();
+  appState.menuData.forEach(s=>s.items.forEach(item=>extractAllergensFromItem(item).forEach(a=>all.add(a))));
+  const filter=document.getElementById('allergenFilter');
+  filter.innerHTML='<strong style="font-size:13px;">Filter:</strong> ';
+  all.forEach(a=>{
+    const b=document.createElement('button');
+    b.className='allergen-badge'+(appState.selectedAllergen===a?' active':'');
+    b.textContent=a.charAt(0).toUpperCase()+a.slice(1);
+    b.onclick=()=>{appState.selectedAllergen=appState.selectedAllergen===a?null:a;renderResults();};
+    filter.appendChild(b);
+  });
+  if(appState.selectedAllergen){
+    const c=document.createElement('button');c.className='allergen-badge';c.textContent='✕ Clear';
+    c.onclick=()=>{appState.selectedAllergen=null;renderResults();};filter.appendChild(c);
+  }
+}
 
-            appState.menuData.forEach(section => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section';
+function toggleFavorite(item){
+  if(appState.favorites.has(item.id)){appState.favorites.delete(item.id);}
+  else{appState.favorites.add(item.id);}
+  const btn=document.getElementById('fav-'+item.id);
+  if(btn) btn.textContent=appState.favorites.has(item.id)?'❤️':'🤍';
+}
 
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'section-title';
-                titleDiv.textContent = section.section;
-                sectionDiv.appendChild(titleDiv);
+// ── ORDER ──
+function renderOrderSummary(){
+  const content=document.getElementById('orderSummaryContent');
+  const favItems=[];
+  appState.menuData.forEach(s=>s.items.forEach(item=>{if(appState.favorites.has(item.id))favItems.push({...item,sectionName:s.section});}));
+  if(favItems.length===0){content.innerHTML='<div class="empty-state"><div class="empty-state-icon">🤍</div><p>No items yet. Go to <b>View Menu</b> and tap ❤️ on items.</p></div>';document.getElementById('orderTotalRow').innerHTML='';return;}
+  content.innerHTML='';
+  let total=0;
+  favItems.forEach(item=>{
+    const warning=itemMatchesUserAllergens(item)?'⚠️ ':'';
+    const div=document.createElement('div');div.className='summary-item';
+    div.innerHTML=`<div style="flex:1"><div style="font-weight:600">${warning}${item.name}</div><div style="font-size:12px;color:var(--muted)">${item.sectionName}</div></div><div style="font-weight:700;color:var(--blue)">${item.price||'?'}</div><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;" onclick="removeFav(${item.id})">✕</button>`;
+    content.appendChild(div);
+    if(item.price){const m=item.price.match(/[\d.]+/);if(m)total+=parseFloat(m[0]);}
+  });
+  document.getElementById('orderTotalRow').innerHTML=`<div class="summary-total">Estimated Total: $${total.toFixed(2)}</div>`;
+}
+function removeFav(id){appState.favorites.delete(id);renderOrderSummary();}
+function speakOrder(){
+  const items=[];appState.menuData.forEach(s=>s.items.forEach(item=>{if(appState.favorites.has(item.id))items.push(item.name);}));
+  if(!items.length){showToast('No items in order');return;}
+  speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance('I would like: '+items.join(', ')+'. Thank you.'),{rate:0.9}));
+}
+function copyOrder(){
+  const items=[];appState.menuData.forEach(s=>s.items.forEach(item=>{if(appState.favorites.has(item.id))items.push(item.name);}));
+  navigator.clipboard.writeText(items.join('\n')).then(()=>showToast('Order copied to clipboard!'));
+}
+function exportOrderPDF(){
+  const items=[];
+  let total=0;
+  appState.menuData.forEach(s=>s.items.forEach(item=>{
+    if(appState.favorites.has(item.id)){items.push(item);if(item.price){const m=item.price.match(/[\d.]+/);if(m)total+=parseFloat(m[0]);}}
+  }));
+  if(!items.length){showToast('No items to export');return;}
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>My Order — MenuSense</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:500px;margin:0 auto;}h1{color:#2563eb}table{width:100%;border-collapse:collapse;}td,th{padding:10px;border-bottom:1px solid #eee;}th{text-align:left;color:#64748b;font-size:12px;text-transform:uppercase;}.total{font-weight:bold;font-size:18px;text-align:right;margin-top:20px;}</style></head><body><h1>🍽️ My Order</h1><p style="color:#64748b">Generated by MenuSense</p><table><tr><th>Item</th><th>Price</th></tr>${items.map(i=>`<tr><td>${i.name}</td><td>${i.price||'—'}</td></tr>`).join('')}</table><div class="total">Total: $${total.toFixed(2)}</div></body></html>`);
+  win.print();
+}
 
-                const itemsDiv = document.createElement('div');
-                itemsDiv.className = 'menu-items';
+// ── PARTNER MAP ──
+let mapInitialized=false;let leafletMap=null;
+function initPartnerMap(){
+  if(mapInitialized) return;
+  mapInitialized=true;
+  leafletMap=L.map('partnerMap').setView([35.5,−79.0],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(leafletMap);
+  PARTNERS.forEach(p=>{
+    const color=p.status==='new'?'#16a34a':'#2563eb';
+    const marker=L.circleMarker([p.lat,p.lng],{radius:Math.max(8,Math.min(18,p.users/100)),fillColor:color,color:'white',weight:2,opacity:1,fillOpacity:0.85}).addTo(leafletMap);
+    marker.bindPopup(`<b>${p.name}</b><br>${p.city}, NC<br><b style="color:${color}">${p.users.toLocaleString()} users</b><br>Partner since ${p.since}`);
+  });
+  renderPartnerTable(PARTNERS);
+}
 
-                section.items.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'menu-item';
-                    itemDiv.id = item.id;
+function renderPartnerTable(data){
+  const tbody=document.getElementById('partnerTableBody');
+  const maxUsers=Math.max(...data.map(p=>p.users));
+  tbody.innerHTML=data.map(p=>`
+    <tr>
+      <td><b>${p.name}</b></td>
+      <td>${p.city}</td>
+      <td>${p.users.toLocaleString()}</td>
+      <td><div class="user-bar" style="width:${Math.round(p.users/maxUsers*120)}px;"></div></td>
+      <td>${p.status==='new'?'<span class="badge-new">New</span>':'<span class="badge-active">Active</span>'}</td>
+    </tr>`).join('');
+}
 
-                    const matchingUserAllergens = getMatchingUserAllergens(item);
-                    if (matchingUserAllergens.length > 0) {
-                        itemDiv.classList.add('user-allergy-warning');
-                        const warnDiv = document.createElement('div');
-                        warnDiv.className = 'warning-banner';
-                        warnDiv.innerHTML = `⚠️ Contains: ${matchingUserAllergens.join(', ')}`;
-                        itemDiv.appendChild(warnDiv);
-                    }
+function filterPartners(q){
+  const filtered=PARTNERS.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.city.toLowerCase().includes(q.toLowerCase()));
+  renderPartnerTable(filtered);
+}
 
-                    if (appState.selectedAllergen && hasAllergen(item, appState.selectedAllergen)) {
-                        itemDiv.classList.add('highlighted');
-                    }
+// ── SCHOOLS ──
+function renderSchools(){
+  const container=document.getElementById('schoolsList');
+  container.innerHTML=SCHOOLS.map(s=>`
+    <div class="school-card">
+      <div class="school-icon" style="background:${s.color}22;">${s.icon}</div>
+      <div class="school-info">
+        <div class="school-name">${s.county} Public Schools</div>
+        <div class="school-meta">Contact: ${s.contact} · Partner since ${s.since}</div>
+        <div class="school-stats">
+          <div class="school-stat">${s.schools} <span>schools</span></div>
+          <div class="school-stat">${s.students.toLocaleString()} <span>students</span></div>
+          <div class="school-stat">${s.cafeterias} <span>cafeterias</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+          <span class="tag ${s.status==='new'?'tag-green':'tag-blue'}">${s.integration}</span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${s.status==='new'?35:85}%"></div></div>
+          <span style="font-size:12px;color:var(--muted)">${s.status==='new'?'Pilot':'Fully Deployed'}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
 
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'menu-item-header';
+// ── ANALYTICS ──
+function renderAnalytics(){
+  // Scan bar chart
+  const scanData=[1240,1580,1890,2100,2480,3557];
+  const maxScan=Math.max(...scanData);
+  document.getElementById('scanChart').innerHTML=scanData.map((v,i)=>`
+    <div class="bar-col">
+      <div style="font-size:10px;color:var(--blue);font-weight:700;">${(v/1000).toFixed(1)}k</div>
+      <div class="bar-fill" style="height:${Math.round(v/maxScan*80)}px;"></div>
+    </div>`).join('');
+  // Allergen chart
+  const allergens=[['Gluten',38],['Dairy',31],['Nuts',18],['Shellfish',14],['Eggs',12],['Soy',9]];
+  document.getElementById('allergenChart').innerHTML=allergens.map(([k,v])=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${k}</span><span style="font-weight:700;color:var(--blue)">${v}%</span></div>
+      <div style="background:var(--border);border-radius:4px;height:8px;"><div style="height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--teal));width:${v}%;"></div></div>
+    </div>`).join('');
+  // County chart
+  const counties=[['Wake',35],['Mecklenburg',22],['Durham',14],['Guilford',11],['Forsyth',9],['Other',9]];
+  document.getElementById('countyChart').innerHTML=counties.map(([k,v])=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${k}</span><span style="font-weight:700;color:var(--teal)">${v}%</span></div>
+      <div style="background:var(--border);border-radius:4px;height:8px;"><div style="height:8px;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--green));width:${v}%;"></div></div>
+    </div>`).join('');
+  // Accessibility chart
+  const acc=[['Text Resize',54],['Dark Mode',41],['Read Aloud',28],['Dyslexia Font',16],['High Contrast',11]];
+  document.getElementById('accessibilityChart').innerHTML=acc.map(([k,v])=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${k}</span><span style="font-weight:700;color:var(--purple)">${v}%</span></div>
+      <div style="background:var(--border);border-radius:4px;height:8px;"><div style="height:8px;border-radius:4px;background:linear-gradient(90deg,var(--purple),var(--blue));width:${v}%;"></div></div>
+    </div>`).join('');
+}
 
-                    const nameDiv = document.createElement('div');
-                    nameDiv.className = 'menu-item-name';
-                    nameDiv.textContent = item.name;
-                    headerDiv.appendChild(nameDiv);
+// ── CHATBOT ──
+let chatOpen=false;
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chatWindow').classList.toggle('hidden',!chatOpen);
+  document.getElementById('chatFab').style.display=chatOpen?'none':'flex';
+  if(chatOpen&&!appState.chatHistory.length) initChat();
+}
 
-                    if (item.price) {
-                        const priceDiv = document.createElement('div');
-                        priceDiv.className = 'menu-item-price';
-                        priceDiv.textContent = item.price;
-                        headerDiv.appendChild(priceDiv);
-                    }
+function initChat(){
+  addBotMsg("Hi! I'm your MenuSense AI assistant 👋 I can help you find allergen-safe dishes, explain menu items, or tell you about our partner restaurants. What can I help with?");
+}
 
-                    itemDiv.appendChild(headerDiv);
+function addBotMsg(text){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');div.className='chat-msg bot';div.textContent=text;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addUserMsg(text){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');div.className='chat-msg user';div.textContent=text;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+  document.getElementById('quickReplies').style.display='none';
+}
+function showTyping(){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');div.id='chatTyping';div.className='chat-msg bot chat-typing';
+  div.innerHTML='<span></span><span></span><span></span>';
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const t=document.getElementById('chatTyping');if(t)t.remove();}
 
-                    if (item.description) {
-                        const descDiv = document.createElement('div');
-                        descDiv.className = 'menu-item-description';
-                        descDiv.textContent = item.description;
-                        itemDiv.appendChild(descDiv);
-                    }
+function sendQuick(text){document.getElementById('chatInput').value=text;sendChat();}
 
-                    const allergens = extractAllergensFromItem(item);
-                    if (allergens.length > 0) {
-                        const allergenDiv = document.createElement('div');
-                        allergenDiv.className = 'menu-item-allergens';
-                        allergens.forEach(allergen => {
-                            const tag = document.createElement('span');
-                            tag.className = 'allergen-tag';
-                            if (appState.selectedAllergen === allergen) tag.classList.add('highlighted');
-                            if (matchingUserAllergens.includes(allergen)) tag.classList.add('user-match');
-                            tag.textContent = allergen.charAt(0).toUpperCase() + allergen.slice(1);
-                            allergenDiv.appendChild(tag);
-                        });
-                        itemDiv.appendChild(allergenDiv);
-                    }
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const msg=input.value.trim();if(!msg)return;
+  input.value='';
+  addUserMsg(msg);
+  showTyping();
+  appState.chatHistory.push({role:'user',content:msg});
+  try{
+    const menuContext=appState.menuData.length>0?`Current menu loaded: ${JSON.stringify(appState.menuData.map(s=>({section:s.section,items:s.items.map(i=>({name:i.name,price:i.price,allergens:i.allergens}))})))}.`:'No menu loaded yet.';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:`You are a friendly AI assistant for MenuSense, an accessible restaurant menu app created for the TSA National Software Development competition. You help users find allergen-safe menu items, navigate the app, learn about partner restaurants in North Carolina, and answer food/nutrition questions. Be concise, warm, and helpful. ${menuContext} Partner restaurants include locations in Raleigh, Durham, Chapel Hill, Charlotte, Greensboro, Winston-Salem, and Asheville NC. School partners include Wake County, Orange County, Johnston County, Durham County, Guilford County, Forsyth County, Mecklenburg County, and Cumberland County.`,
+        messages:appState.chatHistory
+      })
+    });
+    const data=await res.json();
+    removeTyping();
+    const reply=data.content?.map(c=>c.text||'').join('')||"Sorry, I couldn't get a response right now.";
+    addBotMsg(reply);
+    appState.chatHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    removeTyping();addBotMsg("Sorry, I'm having trouble connecting right now. Try again in a moment!");
+  }
+}
 
-                    const controlsDiv = document.createElement('div');
-                    controlsDiv.className = 'menu-item-controls';
-                    const favBtn = document.createElement('button');
-                    favBtn.className = 'favorite-btn';
-                    favBtn.textContent = appState.favorites.has(item.id) ? '❤️' : '🤍';
-                    if (appState.favorites.has(item.id)) favBtn.classList.add('active');
-                    favBtn.addEventListener('click', () => toggleFavorite(item, favBtn));
-                    controlsDiv.appendChild(favBtn);
-                    itemDiv.appendChild(controlsDiv);
-                    itemsDiv.appendChild(itemDiv);
-                });
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
 
-                sectionDiv.appendChild(itemsDiv);
-                menuSections.appendChild(sectionDiv);
-            });
-
-            renderAllergenFilter();
-        }
-
-        function extractAllergensFromItem(item) {
-            if (item.allergens && Array.isArray(item.allergens)) return item.allergens.map(a => a.toLowerCase());
-            const text = (item.name + ' ' + (item.description || '')).toLowerCase();
-            return COMMON_ALLERGENS.filter(a => text.includes(a));
-        }
-
-        function hasAllergen(item, allergen) {
-            return extractAllergensFromItem(item).includes(allergen);
-        }
-
-        function renderAllergenFilter() {
-            const allAllergens = new Set();
-            appState.menuData.forEach(s => s.items.forEach(item => extractAllergensFromItem(item).forEach(a => allAllergens.add(a))));
-
-            const filterDiv = document.getElementById('allergenFilter');
-            filterDiv.innerHTML = '<strong>Filter by allergen:</strong> ';
-
-            allAllergens.forEach(allergen => {
-                const badge = document.createElement('button');
-                badge.className = 'allergen-badge' + (appState.selectedAllergen === allergen ? ' active' : '');
-                badge.textContent = allergen.charAt(0).toUpperCase() + allergen.slice(1);
-                badge.addEventListener('click', () => { appState.selectedAllergen = appState.selectedAllergen === allergen ? null : allergen; renderResults(); });
-                filterDiv.appendChild(badge);
-            });
-
-            if (appState.selectedAllergen) {
-                const clearBtn = document.createElement('button');
-                clearBtn.className = 'allergen-badge';
-                clearBtn.textContent = '✕ Clear';
-                clearBtn.addEventListener('click', () => { appState.selectedAllergen = null; renderResults(); });
-                filterDiv.appendChild(clearBtn);
-            }
-        }
-
-        function toggleFavorite(item, button) {
-            if (appState.favorites.has(item.id)) {
-                appState.favorites.delete(item.id);
-                button.textContent = '🤍';
-                button.classList.remove('active');
-            } else {
-                appState.favorites.add(item.id);
-                button.textContent = '❤️';
-                button.classList.add('active');
-            }
-            saveFavorites();
-        }
-
-        function renderOrderSummary() {
-            const content = document.getElementById('orderSummaryContent');
-            const favoriteItems = [];
-            appState.menuData.forEach(section => section.items.forEach(item => {
-                if (appState.favorites.has(item.id)) favoriteItems.push({ ...item, section: section.section });
-            }));
-
-            const existingTotal = document.getElementById('orderTotal');
-            if (existingTotal) existingTotal.remove();
-
-            if (favoriteItems.length === 0) {
-                content.innerHTML = '<div class="empty-order">No items selected yet. Go back and tap ❤️ on items to add them.</div>';
-                return;
-            }
-
-            content.innerHTML = '';
-            let total = 0;
-
-            favoriteItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'summary-item';
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'summary-item-name';
-                const allergyWarning = itemMatchesUserAllergens(item) ? ' ⚠️' : '';
-                nameDiv.innerHTML = `<strong>${item.name}${allergyWarning}</strong><br><small>${item.section}</small>`;
-                itemDiv.appendChild(nameDiv);
-
-                const priceDiv = document.createElement('div');
-                priceDiv.className = 'summary-item-price';
-                priceDiv.textContent = item.price || '?';
-                itemDiv.appendChild(priceDiv);
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '✕';
-                removeBtn.addEventListener('click', () => { appState.favorites.delete(item.id); saveFavorites(); renderOrderSummary(); });
-                itemDiv.appendChild(removeBtn);
-                content.appendChild(itemDiv);
-
-                if (item.price) {
-                    const match = item.price.match(/\d+(\.\d{2})?/);
-                    if (match) total += parseFloat(match[0]);
-                }
-            });
-
-            const totalDiv = document.createElement('div');
-            totalDiv.id = 'orderTotal';
-            totalDiv.className = 'summary-total';
-            totalDiv.innerHTML = `<strong>Estimated Total: $${total.toFixed(2)}</strong>`;
-            content.parentElement.insertBefore(totalDiv, content.nextSibling);
-        }
-
-        function speakOrder() {
-            const items = [];
-            appState.menuData.forEach(s => s.items.forEach(item => { if (appState.favorites.has(item.id)) items.push(item.name); }));
-            if (items.length === 0) { alert('No items selected'); return; }
-            const utterance = new SpeechSynthesisUtterance('I would like: ' + items.join(', ') + ' please.');
-            utterance.rate = 0.9;
-            speechSynthesis.speak(utterance);
-        }
-
-        function copyOrder() {
-            const items = [];
-            appState.menuData.forEach(s => s.items.forEach(item => { if (appState.favorites.has(item.id)) items.push(item.name); }));
-            navigator.clipboard.writeText(items.join('\n')).then(() => alert('Order copied to clipboard!'));
-        }
-    </script>
+// ── INIT ──
+renderSchools();
+</script>
 </body>
 </html>
